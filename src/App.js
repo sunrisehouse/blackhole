@@ -177,7 +177,7 @@ function App() {
               fontWeight: 700,
             }}
           >
-            {APP_VERSION}
+            Blackhole {APP_VERSION}
           </Typography>
           {measurementState.isInit
             ? measurementState.isStart
