@@ -24,6 +24,8 @@ let gyroscope = null;
 
 const detector = new EventDetector();
 
+let startTime = 0;
+
 function settingViewReducer(state, action) {
   if (action.type === 'open') return { ...state, isOpen: true };
   else if (action.type === 'close') return { ...state, isOpen: false };
@@ -44,7 +46,6 @@ function App() {
   const [fetchDataIntervalId, setFetchDataIntervalId] = useState(null);
   const [flagChageLogs, setFlagChangeLogs] = useState([]);
   const [results, setResults] = useState([]);
-  const [startTime, setStartTime] = useState(0);
 
   useEffect(() => {
     return () => {
@@ -76,9 +77,7 @@ function App() {
               const bnrCoff = 0.155;
               const cnrCoff = 0.4794;
               const timeDelta = event.ts2Time - event.ts1Time;
-              addConsoleLog(`${timeDelta}=${event.ts2Time}-${event.ts1Time}`);
               const laserVal = alCoff * (timeDelta ** blCoff) + clCoff;
-              addConsoleLog(`${timeDelta ** blCoff}=${timeDelta}**${blCoff} | ${laserVal}=${alCoff * (timeDelta ** blCoff)}+${clCoff}`);
               const resultVal = anrCoff * (laserVal ** 2) + bnrCoff * laserVal + cnrCoff;
               return { laserVal, resultVal, time: event.trTime - startTime };
             });
@@ -118,7 +117,7 @@ function App() {
     setTimeout(() => {
       setfetchDataInterval();
       dispatchMeasurement({ type: 'init' });
-      setStartTime(Date.now())
+      startTime = Date.now();
     }, 1000);
     dispatchMeasurement({ type: 'start' });
   };
