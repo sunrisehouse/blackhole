@@ -12,7 +12,7 @@ import NotStartedRoundedIcon from '@mui/icons-material/NotStartedRounded';
 import { addConsoleLog } from './consolelog';
 import { DebuggingView } from './DebuggingView';
 
-const APP_VERSION = 'v0.0.3';
+const APP_VERSION = 'v0.0.4';
 
 const audioBuffer = new CircularBuffer(10000000);
 const accelBuffer = new CircularBuffer(10000000);

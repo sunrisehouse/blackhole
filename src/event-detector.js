@@ -76,8 +76,8 @@ export class EventDetector {
           const eventData = {
             ts1Sample: this.soundTs1Sample,
             ts1Time: this.soundTs1Time,
-            ts2Sample: this.soundTs1Sample,
-            ts2Time: this.soundTs1Time,
+            ts2Sample: this.soundTs2Sample,
+            ts2Time: this.soundTs2Time,
             trAccel: a,
             trTime: t,
           };
