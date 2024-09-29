@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from 'react';
+import { useEffect, useReducer, useRef, useState } from 'react';
 import './App.css';
 import { AppBar, Box, Button, ButtonGroup, Container, Divider, Drawer, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Toolbar, Typography } from '@mui/material';
 import { CircularBuffer } from './circulate-buffer';
@@ -9,10 +9,10 @@ import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import PlayCircleFilledRoundedIcon from '@mui/icons-material/PlayCircleFilledRounded';
 import PauseCircleFilledRoundedIcon from '@mui/icons-material/PauseCircleFilledRounded';
 import NotStartedRoundedIcon from '@mui/icons-material/NotStartedRounded';
-import { addConsoleLog } from './consolelog';
 import { DebuggingView } from './DebuggingView';
+import { addConsoleLog } from './consolelog';
 
-const APP_VERSION = 'v0.0.4';
+const APP_VERSION = 'v0.0.5';
 
 const audioBuffer = new CircularBuffer(10000000);
 const accelBuffer = new CircularBuffer(10000000);
@@ -46,6 +46,22 @@ function App() {
   const [fetchDataIntervalId, setFetchDataIntervalId] = useState(null);
   const [flagChageLogs, setFlagChangeLogs] = useState([]);
   const [results, setResults] = useState([]);
+  const inputRefs = {
+    alCoffRef: useRef(null),
+    blCoffRef: useRef(null),
+    clCoffRef: useRef(null),
+    anrCoffRef: useRef(null),
+    bnrCoffRef: useRef(null),
+    cnrCoffRef: useRef(null),
+  }
+  const [settings, setSettings] = useState({
+    alCoff: 4.5741,
+    blCoff: -1.336,
+    clCoff: 0.0,
+    anrCoff: 0.0077,
+    bnrCoff: 0.155,
+    cnrCoff: 0.4794,
+  });
 
   useEffect(() => {
     return () => {
@@ -70,16 +86,10 @@ function App() {
         setResults((results) => {
           if (events.length > results.length) {
             return events.map((event) => {
-              const alCoff = 4.5741;
-              const blCoff = -1.336;
-              const clCoff = 0.0;
-              const anrCoff = 0.0077;
-              const bnrCoff = 0.155;
-              const cnrCoff = 0.4794;
               const timeDelta = event.ts2Time - event.ts1Time;
-              const laserVal = alCoff * (timeDelta ** blCoff) + clCoff;
-              const resultVal = anrCoff * (laserVal ** 2) + bnrCoff * laserVal + cnrCoff;
-              return { laserVal, resultVal, time: event.trTime - startTime };
+              const laserVal = settings.alCoff * (timeDelta ** settings.blCoff) + settings.clCoff;
+              const resultVal = settings.anrCoff * (laserVal ** 2) + settings.bnrCoff * laserVal + settings.cnrCoff;
+              return { laserVal, resultVal, time: event.trTime - startTime, timeDelta };
             });
           } else {
             return results;
@@ -132,6 +142,22 @@ function App() {
     dispatchMeasurement({ type: 'start' });
   };
 
+  const handleClickApply = (e) => {
+    try {
+      setSettings({
+        alCoff: Number(inputRefs.alCoffRef.current.value),
+        blCoff: Number(inputRefs.blCoffRef.current.value),
+        clCoff: Number(inputRefs.clCoffRef.current.value),
+        anrCoff: Number(inputRefs.anrCoffRef.current.value),
+        bnrCoff: Number(inputRefs.bnrCoffRef.current.value),
+        cnrCoff: Number(inputRefs.cnrCoffRef.current.value),
+      });
+      dispatchSettingView({ type: 'close' })
+    } catch(e) {
+      addConsoleLog(e.message)
+    }
+  };
+
   return (
     <div className="App">
       <AppBar position="static" color="primary">
@@ -151,7 +177,7 @@ function App() {
               textAlign: 'left'
             }}
           >
-            Blackhole
+            Blackhole {APP_VERSION}
           </Typography>
           <IconButton
             color="inherit"
@@ -161,25 +187,15 @@ function App() {
           </IconButton>
         </Toolbar>
       </AppBar>
-      <Container maxWidth="sm">
+      <Container maxWidth="sm"
+        sx={{
+          paddingTop: "40px",
+          paddingBottom: "40px",
+        }}
+      >
         <Paper
-          sx={{
-            marginTop: '40px',
-            padding: '20px 0 40px',
-            '& .MuiTextField-root': { marginTop: '10px' },
-          }}
+          sx={{ padding: '20px' }}
         >
-          <Typography
-            variant="h5"
-            noWrap
-            sx={{
-              mr: 2,
-              display: { md: 'flex' },
-              fontWeight: 700,
-            }}
-          >
-            Blackhole {APP_VERSION}
-          </Typography>
           {measurementState.isInit
             ? measurementState.isStart
               ? <Button
@@ -212,31 +228,72 @@ function App() {
                 start
               </Button>
           }
-          <TableContainer>
+          <Typography
+            variant="h5"
+            sx={{
+              margin: '20px 0'
+            }}
+          >
+            {results.length > 0 ? results[results.length - 1].resultVal : '0'}
+          </Typography>
+          <TableContainer
+            component={Paper}
+            sx={{ marginTop: '20px' }}
+          >
             <Table>
               <TableHead>
                 <TableRow>
-                  {/* <TableCell>ID</TableCell> */}
-                  <TableCell align="right">Time</TableCell>
-                  <TableCell align="right">Laser_Val</TableCell>
-                  <TableCell align="right">Result_Val</TableCell>
+                  {/* <TableCell>Parameters</TableCell> */}
+                  <TableCell align="center">ALcoff</TableCell>
+                  <TableCell align="center">BLcoff</TableCell>
+                  <TableCell align="center">CLcoff</TableCell>
+                  <TableCell align="center">ANRcoff</TableCell>
+                  <TableCell align="center">BNRcoff</TableCell>
+                  <TableCell align="center">CNRcoff</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {results.map((result, index) => (
-                  <TableRow
-                    key={index}
-                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                  >
-                    <TableCell align="right">{result.time}</TableCell>
-                    <TableCell align="right">{result.laserVal}</TableCell>
-                    <TableCell align="right">{result.resultVal}</TableCell>
-                  </TableRow>
-                ))}
+                <TableRow>
+                  {/* <TableCell align="center"></TableCell> */}
+                  <TableCell align="center">{settings.alCoff}</TableCell>
+                  <TableCell align="center">{settings.blCoff}</TableCell>
+                  <TableCell align="center">{settings.clCoff}</TableCell>
+                  <TableCell align="center">{settings.anrCoff}</TableCell>
+                  <TableCell align="center">{settings.bnrCoff}</TableCell>
+                  <TableCell align="center">{settings.cnrCoff}</TableCell>
+                </TableRow>
               </TableBody>
             </Table>
           </TableContainer>
         </Paper>
+        <TableContainer
+          component={Paper}
+          sx={{ marginTop: '20px' }}
+        >
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell align="center">Time</TableCell>
+                <TableCell align="right">Time_Delta</TableCell>
+                <TableCell align="right">Laser_Val</TableCell>
+                <TableCell align="right">Result_Val</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {results.map((result, index) => (
+                <TableRow
+                  key={index}
+                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                >
+                  <TableCell align="center">{result.time}</TableCell>
+                  <TableCell align="right">{result.timeDelta}</TableCell>
+                  <TableCell align="right">{result.laserVal}</TableCell>
+                  <TableCell align="right">{result.resultVal}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
         <Box sx={{ marginTop: '20px' }}>
           <DebuggingView
             flagChageLogs={flagChageLogs}
@@ -250,7 +307,7 @@ function App() {
         onClose={() => dispatchSettingView({ type: 'toggle' })}
       >
         <Box
-          component="form"
+          // component="form"
           sx={{
             padding: '20px',
             '& .MuiTextField-root': { m: 1, width: '25ch' },
@@ -273,26 +330,62 @@ function App() {
           </Typography>
           <div>
             <TextField
-              label="setting1"
-              defaultValue="0"
+              label="ALcoff"
+              name="alCoff"
+              defaultValue={settings.alCoff}
               type="number"
               size="small"
+              inputRef={inputRefs.alCoffRef}
             />
           </div>
           <div>
             <TextField
-              label="setting1"
-              defaultValue="0"
+              label="BLcoff"
+              name="blCoff"
+              defaultValue={settings.blCoff}
               type="number"
               size="small"
+              inputRef={inputRefs.blCoffRef}
             />
           </div>
           <div>
             <TextField
-              label="setting1"
-              defaultValue="0"
+              label="CLcoff"
+              name="clCoff"
+              defaultValue={settings.clCoff}
               type="number"
               size="small"
+              inputRef={inputRefs.clCoffRef}
+            />
+          </div>
+          <div>
+            <TextField
+              label="ANRcoff"
+              name="anrCoff"
+              defaultValue={settings.anrCoff}
+              type="number"
+              size="small"
+              inputRef={inputRefs.anrCoffRef}
+            />
+          </div>
+          <div>
+            <TextField
+              label="BNRcoff"
+              name="bnrCoff"
+              defaultValue={settings.bnrCoff}
+              type="number"
+              size="small"
+              inputRef={inputRefs.bnrCoffRef}
+            />
+          </div>
+          <div>
+            <TextField
+              label="CNRcoff"
+              name="cnrCoff"
+              defaultValue={settings.cnrCoff}
+              type="number"
+              size="small"
+              inputRef={inputRefs.cnrCoffRef}
             />
           </div>
           <Divider/>
@@ -329,6 +422,8 @@ function App() {
           <ButtonGroup>
             <Button
               variant="contained"
+              type="submit"
+              onClick={handleClickApply}
             >
               Apply
             </Button>
