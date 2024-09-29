@@ -11,7 +11,7 @@ import PauseCircleFilledRoundedIcon from '@mui/icons-material/PauseCircleFilledR
 import NotStartedRoundedIcon from '@mui/icons-material/NotStartedRounded';
 import { addConsoleLog, getConsoleLog } from './consolelog';
 
-const APP_VERSION = 'v0.0.1';
+const APP_VERSION = 'v0.0.2';
 
 const audioBuffer = new CircularBuffer(10000000);
 const accelBuffer = new CircularBuffer(10000000);

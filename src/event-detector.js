@@ -66,7 +66,7 @@ export class EventDetector {
   }
 
   // 가속도 데이터 입력
-  inputAccelData({ a, t }) {
+  inputGyroData({ a, t }) {
     if (this.flagTs2) {
       const timeSinceFlagTs2 = t - this.soundTs2Time; // flagTs2가 트리거된 시간과 비교
 
