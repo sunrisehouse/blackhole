@@ -1,7 +1,7 @@
 import { useEffect, useReducer, useState } from 'react';
 import './App.css';
-import { AppBar, Box, Button, ButtonGroup, Container, Divider, Drawer, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Toolbar, Typography } from '@mui/material';
-import { CircularBuffer } from './CirculateBuffer';
+import { AppBar, Box, Button, ButtonGroup, Container, Divider, Drawer, IconButton, Paper, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tabs, TextField, Toolbar, Typography } from '@mui/material';
+import { CircularBuffer } from './circulate-buffer';
 import { initAccelerometer, initAudio, initGyroscope } from './sensors';
 import { EventDetector } from './event-detector';
 import SensorsIcon from '@mui/icons-material/Sensors';
@@ -10,8 +10,10 @@ import PlayCircleFilledRoundedIcon from '@mui/icons-material/PlayCircleFilledRou
 import PauseCircleFilledRoundedIcon from '@mui/icons-material/PauseCircleFilledRounded';
 import NotStartedRoundedIcon from '@mui/icons-material/NotStartedRounded';
 import { addConsoleLog, getConsoleLog } from './consolelog';
+import { Console } from './Console';
+import { DebuggingView } from './DebuggingView';
 
-const APP_VERSION = 'v0.0.2';
+const APP_VERSION = 'v0.0.3';
 
 const audioBuffer = new CircularBuffer(10000000);
 const accelBuffer = new CircularBuffer(10000000);
@@ -37,39 +39,13 @@ function measurementReducer(state, action) {
   throw Error('Unknown action.');
 }
 
-function useConsole() {
-  const [logs, setLogs] = useState([]);
-
-  useEffect(() => {
-    // 1초 주기로 새로운 로그 추가
-    const interval = setInterval(() => {
-      setLogs([...getConsoleLog()]);
-    }, 1000);
-
-    // 컴포넌트 언마운트 시 interval 제거
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <Paper sx={{ padding: '16px', height: '400px', overflowY: 'auto', backgroundColor: '#1e1e1e', color: '#fff' }}>
-      <Box sx={{ textAlign: 'left' }}>
-        {logs.map((log, index) => (
-          <Typography key={index} sx={{ fontFamily: 'monospace' , fontSize: '8px'}}>
-            {log}
-          </Typography>
-        ))}
-      </Box>
-    </Paper>
-  );
-}
-
 function App() {
   const [settingViewState, dispatchSettingView] = useReducer(settingViewReducer, { isOpen: false });
   const [measurementState, dispatchMeasurement] = useReducer(measurementReducer, { isInit: false, isStart: false });
   const [fetchDataIntervalId, setFetchDataIntervalId] = useState(null);
   const [flagChageLogs, setFlagChangeLogs] = useState([]);
+  const [results, setResults] = useState([]);
   const [startTime, setStartTime] = useState(0);
-  const console = useConsole();
 
   const setfetchDataInterval = () => {
     setFetchDataIntervalId(
@@ -80,6 +56,25 @@ function App() {
             return [...logs];
           } else {
             return prevLogs;
+          }
+        });
+        const events = detector.getEventDataList();
+        setResults((results) => {
+          if (events.length > results.length) {
+            return events.map((event) => {
+              const alCoff = 4.5741;
+              const blCoff = -1.336;
+              const clCoff = 0.0;
+              const anrCoff = 0.0077;
+              const bnrCoff = 0.155;
+              const cnrCoff = 0.4794;
+              const timeDelta = event.ts2Time - event.ts1Time;
+              const laserVal = alCoff * (timeDelta ** blCoff) + clCoff;
+              const resultVal = anrCoff * (laserVal ** 2) + bnrCoff * laserVal + cnrCoff;
+              return { laserVal, resultVal, time: event.trTime };
+            });
+          } else {
+            return results;
           }
         });
       }, 1000)
@@ -197,7 +192,12 @@ function App() {
                 restart
               </Button>
             : measurementState.isStart
-              ? <></>
+              ? <Button
+                disabled
+                variant="contained"
+              >
+                initializing
+              </Button>
               : <Button
                 variant="contained"
                 onClick={handleClickStart}
@@ -206,70 +206,37 @@ function App() {
                 start
               </Button>
           }
-        </Paper>
-        {console}
-        <Paper
-          sx={{
-            marginTop: '40px',
-            padding: '20px 0 40px',
-            '& .MuiTextField-root': { marginTop: '10px' },
-          }}
-        >
-          <Typography
-            variant="h5"
-            noWrap
-            sx={{
-              mr: 2,
-              display: { md: 'flex' },
-              fontWeight: 700,
-            }}
-          >
-            Flag History
-          </Typography>
-          <TableContainer component={Paper}>
+          <TableContainer>
             <Table>
               <TableHead>
                 <TableRow>
                   {/* <TableCell>ID</TableCell> */}
-                  <TableCell align="right">time</TableCell>
-                  <TableCell align="right">flag</TableCell>
-                  <TableCell align="right">message</TableCell>
-                  <TableCell align="right">ts1 flag</TableCell>
-                  <TableCell align="right">ts1 time</TableCell>
-                  <TableCell align="right">ts1 sample</TableCell>
-                  <TableCell align="right">ts2 flag</TableCell>
-                  <TableCell align="right">ts2 time</TableCell>
-                  <TableCell align="right">ts2 sample</TableCell>
-                  <TableCell align="right">tr flag</TableCell>
-                  <TableCell align="right">tr time</TableCell>
-                  <TableCell align="right">tr sample</TableCell>
+                  <TableCell align="right">Time</TableCell>
+                  <TableCell align="right">Laser_Val</TableCell>
+                  <TableCell align="right">Result_Val</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {flagChageLogs.map((log, index) => (
+                {results.map((result, index) => (
                   <TableRow
                     key={index}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                   >
-                    {/* <TableCell component="th" scope="row">{index}</TableCell> */}
-                    <TableCell align="right">{log.time - startTime}</TableCell>
-                    <TableCell align="right">{log.flag}</TableCell>
-                    <TableCell align="right">{log.message}</TableCell>
-                    <TableCell align="right">{log.value.ts1.flag ? 'true' : 'false'}</TableCell>
-                    <TableCell align="right">{log.value.ts1.time - startTime}</TableCell>
-                    <TableCell align="right">{log.value.ts1.sample}</TableCell>
-                    <TableCell align="right">{log.value.ts2.flag ? 'true' : 'false'}</TableCell>
-                    <TableCell align="right">{log.value.ts2.time - startTime}</TableCell>
-                    <TableCell align="right">{log.value.ts2.sample}</TableCell>
-                    <TableCell align="right">{log.value.tr.flag ? 'true' : 'false'}</TableCell>
-                    <TableCell align="right">{log.value.tr.time - startTime}</TableCell>
-                    <TableCell align="right">{log.value.tr.a}</TableCell>
+                    <TableCell align="right">{result.time}</TableCell>
+                    <TableCell align="right">{result.laserVal}</TableCell>
+                    <TableCell align="right">{result.resultVal}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
           </TableContainer>
         </Paper>
+        <Box sx={{ marginTop: '20px' }}>
+          <DebuggingView
+            flagChageLogs={flagChageLogs}
+            startTime={startTime}
+          />
+        </Box>
       </Container>
       <Drawer
         anchor={"left"}
@@ -301,7 +268,7 @@ function App() {
           <div>
             <TextField
               label="setting1"
-              defaultValue="Hello World"
+              defaultValue="0"
               type="number"
               size="small"
             />
@@ -309,7 +276,7 @@ function App() {
           <div>
             <TextField
               label="setting1"
-              defaultValue="Hello World"
+              defaultValue="0"
               type="number"
               size="small"
             />
@@ -317,7 +284,7 @@ function App() {
           <div>
             <TextField
               label="setting1"
-              defaultValue="Hello World"
+              defaultValue="0"
               type="number"
               size="small"
             />
@@ -331,7 +298,7 @@ function App() {
           <div>
             <TextField
               label="setting1"
-              defaultValue="Hello World"
+              defaultValue="0"
               type="number"
               size="small"
             />
@@ -339,7 +306,7 @@ function App() {
           <div>
             <TextField
               label="setting1"
-              defaultValue="Hello World"
+              defaultValue="0"
               type="number"
               size="small"
             />
@@ -347,7 +314,7 @@ function App() {
           <div>
             <TextField
               label="setting1"
-              defaultValue="Hello World"
+              defaultValue="0"
               type="number"
               size="small"
             />

@@ -74,10 +74,12 @@ export class EventDetector {
       if (timeSinceFlagTs2 <= 70) {
         if (a >= 0.2) {
           const eventData = {
-            accel: a,
-            soundTs1: { sample: this.soundTs1Sample, time: this.soundTs1Time },
-            soundTs2: { sample: this.soundTs2Sample, time: this.soundTs2Time },
-            eventTime: t
+            ts1Sample: this.soundTs1Sample,
+            ts1Time: this.soundTs1Time,
+            ts2Sample: this.soundTs1Sample,
+            ts2Time: this.soundTs1Time,
+            trAccel: a,
+            trTime: t,
           };
           // 이벤트 데이터를 리스트에 저장
           this.eventDataList.push(eventData);
