@@ -1,6 +1,6 @@
 import { useEffect, useReducer, useState } from 'react';
 import './App.css';
-import { AppBar, Box, Button, ButtonGroup, Container, Divider, Drawer, IconButton, Paper, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tabs, TextField, Toolbar, Typography } from '@mui/material';
+import { AppBar, Box, Button, ButtonGroup, Container, Divider, Drawer, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Toolbar, Typography } from '@mui/material';
 import { CircularBuffer } from './circulate-buffer';
 import { initAccelerometer, initAudio, initGyroscope } from './sensors';
 import { EventDetector } from './event-detector';
@@ -9,8 +9,7 @@ import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import PlayCircleFilledRoundedIcon from '@mui/icons-material/PlayCircleFilledRounded';
 import PauseCircleFilledRoundedIcon from '@mui/icons-material/PauseCircleFilledRounded';
 import NotStartedRoundedIcon from '@mui/icons-material/NotStartedRounded';
-import { addConsoleLog, getConsoleLog } from './consolelog';
-import { Console } from './Console';
+import { addConsoleLog } from './consolelog';
 import { DebuggingView } from './DebuggingView';
 
 const APP_VERSION = 'v0.0.3';
@@ -47,6 +46,14 @@ function App() {
   const [results, setResults] = useState([]);
   const [startTime, setStartTime] = useState(0);
 
+  useEffect(() => {
+    return () => {
+      if (audioContext) audioContext.close();
+      if (accelerometer) accelerometer.stop();
+      if (gyroscope) gyroscope.stop();
+    };
+  }, []);
+
   const setfetchDataInterval = () => {
     setFetchDataIntervalId(
       setInterval(async () => {
@@ -69,9 +76,11 @@ function App() {
               const bnrCoff = 0.155;
               const cnrCoff = 0.4794;
               const timeDelta = event.ts2Time - event.ts1Time;
+              addConsoleLog(`${timeDelta}=${event.ts2Time}-${event.ts1Time}`);
               const laserVal = alCoff * (timeDelta ** blCoff) + clCoff;
+              addConsoleLog(`${timeDelta ** blCoff}=${timeDelta}**${blCoff} | ${laserVal}=${alCoff * (timeDelta ** blCoff)}+${clCoff}`);
               const resultVal = anrCoff * (laserVal ** 2) + bnrCoff * laserVal + cnrCoff;
-              return { laserVal, resultVal, time: event.trTime };
+              return { laserVal, resultVal, time: event.trTime - startTime };
             });
           } else {
             return results;
@@ -92,14 +101,12 @@ function App() {
     }
     async function initAccel() {
       const { accelerometer: accel } = await initAccelerometer((data) => {
-        addConsoleLog(`accel data - ${data.t} ${data.a}`);
         accelBuffer.add(data);
       });
       accelerometer = accel;
     }
     async function initGyro() {
       const { gyroscope: gyro } = await initGyroscope((data) => {
-        addConsoleLog(`gyro data - ${data.t} ${data.a}`);
         gyroBuffer.add(data);
         detector.inputGyroData(data);
       });
