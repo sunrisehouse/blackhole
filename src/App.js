@@ -274,9 +274,9 @@ function App() {
             <TableHead>
               <TableRow>
                 <TableCell align="center">Time</TableCell>
-                <TableCell align="right">Time_Delta</TableCell>
-                <TableCell align="right">Laser_Val</TableCell>
-                <TableCell align="right">Result_Val</TableCell>
+                <TableCell align="center">Time_Delta</TableCell>
+                <TableCell align="center">Laser_Val</TableCell>
+                <TableCell align="center">Result_Val</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -286,9 +286,9 @@ function App() {
                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                 >
                   <TableCell align="center">{result.time}</TableCell>
-                  <TableCell align="right">{result.timeDelta}</TableCell>
-                  <TableCell align="right">{result.laserVal}</TableCell>
-                  <TableCell align="right">{result.resultVal}</TableCell>
+                  <TableCell align="center">{result.timeDelta}</TableCell>
+                  <TableCell align="center">{result.laserVal}</TableCell>
+                  <TableCell align="center">{result.resultVal}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
