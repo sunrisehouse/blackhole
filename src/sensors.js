@@ -45,6 +45,7 @@ export const initAccelerometer = async (onReading) => {
         x: accelerometer.x,
         y: accelerometer.y,
         z: accelerometer.z,
+        a: Math.sqrt(accelerometer.x ** 2 + accelerometer.y ** 2 + accelerometer.z ** 2),
       })
     });
     accelerometer.start();
@@ -82,6 +83,7 @@ export const initGyroscope = async (onReading) => {
         x: gyroscope.x,
         y: gyroscope.y,
         z: gyroscope.z,
+        a: Math.sqrt(gyroscope.x ** 2 + gyroscope.y ** 2 + gyroscope.z ** 2),
       })
     });
     gyroscope.start();
