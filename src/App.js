@@ -1,4 +1,4 @@
-import { useReducer, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import './App.css';
 import { AppBar, Box, Button, ButtonGroup, Container, Divider, Drawer, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Toolbar, Typography } from '@mui/material';
 import { CircularBuffer } from './CirculateBuffer';
@@ -9,6 +9,9 @@ import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import PlayCircleFilledRoundedIcon from '@mui/icons-material/PlayCircleFilledRounded';
 import PauseCircleFilledRoundedIcon from '@mui/icons-material/PauseCircleFilledRounded';
 import NotStartedRoundedIcon from '@mui/icons-material/NotStartedRounded';
+import { addConsoleLog, getConsoleLog } from './consolelog';
+
+const APP_VERSION = 'v0.0.1';
 
 const audioBuffer = new CircularBuffer(10000000);
 const accelBuffer = new CircularBuffer(10000000);
@@ -34,12 +37,39 @@ function measurementReducer(state, action) {
   throw Error('Unknown action.');
 }
 
+function useConsole() {
+  const [logs, setLogs] = useState([]);
+
+  useEffect(() => {
+    // 1초 주기로 새로운 로그 추가
+    const interval = setInterval(() => {
+      setLogs([...getConsoleLog()]);
+    }, 1000);
+
+    // 컴포넌트 언마운트 시 interval 제거
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <Paper sx={{ padding: '16px', height: '400px', overflowY: 'auto', backgroundColor: '#1e1e1e', color: '#fff' }}>
+      <Box sx={{ textAlign: 'left' }}>
+        {logs.map((log, index) => (
+          <Typography key={index} sx={{ fontFamily: 'monospace' , fontSize: '8px'}}>
+            {log}
+          </Typography>
+        ))}
+      </Box>
+    </Paper>
+  );
+}
+
 function App() {
   const [settingViewState, dispatchSettingView] = useReducer(settingViewReducer, { isOpen: false });
   const [measurementState, dispatchMeasurement] = useReducer(measurementReducer, { isInit: false, isStart: false });
   const [fetchDataIntervalId, setFetchDataIntervalId] = useState(null);
   const [flagChageLogs, setFlagChangeLogs] = useState([]);
   const [startTime, setStartTime] = useState(0);
+  const console = useConsole();
 
   const setfetchDataInterval = () => {
     setFetchDataIntervalId(
@@ -59,6 +89,7 @@ function App() {
   const handleClickStart = () => {
     async function initAC() {
       const { audioContext: ac } = await initAudio((data) => {
+        // addConsoleLog(`get audio data - ${data.t} ${data.samples.length}`);
         audioBuffer.add(data);
         detector.inputSoundData(data);
       });
@@ -66,12 +97,14 @@ function App() {
     }
     async function initAccel() {
       const { accelerometer: accel } = await initAccelerometer((data) => {
+        addConsoleLog(`accel data - ${data.t} ${data.a}`);
         accelBuffer.add(data);
       });
       accelerometer = accel;
     }
     async function initGyro() {
       const { gyroscope: gyro } = await initGyroscope((data) => {
+        addConsoleLog(`gyro data - ${data.t} ${data.a}`);
         gyroBuffer.add(data);
         detector.inputGyroData(data);
       });
@@ -144,7 +177,7 @@ function App() {
               fontWeight: 700,
             }}
           >
-            Parameters
+            {APP_VERSION}
           </Typography>
           {measurementState.isInit
             ? measurementState.isStart
@@ -174,6 +207,7 @@ function App() {
               </Button>
           }
         </Paper>
+        {console}
         <Paper
           sx={{
             marginTop: '40px',
@@ -193,7 +227,7 @@ function App() {
             Flag History
           </Typography>
           <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <Table>
               <TableHead>
                 <TableRow>
                   {/* <TableCell>ID</TableCell> */}

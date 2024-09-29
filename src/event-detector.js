@@ -1,3 +1,5 @@
+import { addConsoleLog } from "./consolelog";
+
 export class EventDetector {
   constructor() {
     this.flagTs1 = false; // 첫 번째 소리 조건 (기존 flagTr1)
@@ -29,6 +31,7 @@ export class EventDetector {
       message,
     });
     console.log(`Flag ${flagName} changed to ${value} at time ${t}`);
+    addConsoleLog(`Flag ${flagName} changed to ${value} at time ${t}`)
   }
 
   // Sound 데이터 입력
