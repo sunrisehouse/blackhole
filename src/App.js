@@ -12,7 +12,7 @@ import NotStartedRoundedIcon from '@mui/icons-material/NotStartedRounded';
 import { DebuggingView } from './DebuggingView';
 import { addConsoleLog } from './consolelog';
 
-const APP_VERSION = 'v0.0.5';
+const APP_VERSION = 'v0.0.6';
 
 const audioBuffer = new CircularBuffer(10000000);
 const accelBuffer = new CircularBuffer(10000000);
@@ -53,6 +53,7 @@ function App() {
     anrCoffRef: useRef(null),
     bnrCoffRef: useRef(null),
     cnrCoffRef: useRef(null),
+    userParameterRef: useRef(null),
   }
   const [settings, setSettings] = useState({
     alCoff: 4.5741,
@@ -61,6 +62,7 @@ function App() {
     anrCoff: 0.0077,
     bnrCoff: 0.155,
     cnrCoff: 0.4794,
+    userParameter: 2.5,
   });
 
   useEffect(() => {
@@ -86,9 +88,11 @@ function App() {
         setResults((results) => {
           if (events.length > results.length) {
             return events.map((event) => {
-              const timeDelta = event.ts2Time - event.ts1Time;
+              const timeDelta = (event.ts2Time - event.ts1Time) * 0.001; // sec 로 변환
               const laserVal = settings.alCoff * (timeDelta ** settings.blCoff) + settings.clCoff;
-              const resultVal = settings.anrCoff * (laserVal ** 2) + settings.bnrCoff * laserVal + settings.cnrCoff;
+              const resultVal =
+                (settings.anrCoff * (laserVal ** 2) + settings.bnrCoff * laserVal + settings.cnrCoff)
+                * settings.userParameter;
               return { laserVal, resultVal, time: event.trTime - startTime, timeDelta };
             });
           } else {
@@ -250,6 +254,7 @@ function App() {
                   <TableCell align="center">ANRcoff</TableCell>
                   <TableCell align="center">BNRcoff</TableCell>
                   <TableCell align="center">CNRcoff</TableCell>
+                  <TableCell align="center">User_Parameter</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -261,6 +266,7 @@ function App() {
                   <TableCell align="center">{settings.anrCoff}</TableCell>
                   <TableCell align="center">{settings.bnrCoff}</TableCell>
                   <TableCell align="center">{settings.cnrCoff}</TableCell>
+                  <TableCell align="center">{settings.userParameter}</TableCell>
                 </TableRow>
               </TableBody>
             </Table>
@@ -386,6 +392,16 @@ function App() {
               type="number"
               size="small"
               inputRef={inputRefs.cnrCoffRef}
+            />
+          </div>
+          <div>
+            <TextField
+              label="User_Parameter"
+              name="userParameter"
+              defaultValue={settings.userParameter}
+              type="number"
+              size="small"
+              inputRef={inputRefs.userParameterRef}
             />
           </div>
           <Divider/>
