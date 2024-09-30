@@ -13,7 +13,7 @@ import { DebuggingView } from './DebuggingView';
 import { addConsoleLog } from './consolelog';
 import { SettingsView } from './SettingsView';
 
-const APP_VERSION = 'v0.0.8';
+const APP_VERSION = 'v0.0.9';
 
 const audioBuffer = new CircularBuffer(10000000);
 const accelBuffer = new CircularBuffer(10000000);
@@ -48,6 +48,17 @@ function getUnitSign(unit) {
   else if (unit === 'mPerSteps') return 'm/steps';
   else if (unit === 'ftPerSteps') return 'ft/steps';
   return '';
+}
+
+function getResultValueString(resultVal, settings) {
+  return `${(
+    resultVal * (
+    settings.unit === 'm' ? settings.mPerM
+    : settings.unit === 'ft' ? settings.ftPerM
+    : settings.unit === 'mPerSteps' ? settings.mPerSteps
+    : settings.unit === 'ftPerSteps' ? settings.ftPerSteps
+    : 1)
+  ).toFixed(2)} ${getUnitSign(settings.unit)}`;
 }
 
 function App() {
@@ -99,13 +110,8 @@ function App() {
               const timeDelta = (event.ts2Time - event.ts1Time) * 0.001; // sec 로 변환
               const laserVal = settings.alCoff * (timeDelta ** settings.blCoff) + settings.clCoff;
               const resultVal =
-                `${((settings.anrCoff * (laserVal ** 2) + settings.bnrCoff * laserVal + settings.cnrCoff)
-                * settings.userParameter
-                * (settings.unit === 'm' ? settings.mPerM
-                  : settings.unit === 'ft' ? settings.ftPerM
-                  : settings.unit === 'mPerSteps' ? settings.mPerSteps
-                  : settings.unit === 'ftPerSteps' ? settings.ftPerSteps
-                  : 1)).toFixed(2)} ${unitSign}`;
+                (settings.anrCoff * (laserVal ** 2) + settings.bnrCoff * laserVal + settings.cnrCoff)
+                * settings.userParameter;
               return {
                 laserVal,
                 resultVal,
@@ -185,7 +191,7 @@ function App() {
       });
       dispatchSettingView({ type: 'close' })
     } catch(e) {
-      addConsoleLog(e.message)
+      addConsoleLog(e.message);
     }
   };
 
@@ -265,7 +271,11 @@ function App() {
               margin: '20px 0'
             }}
           >
-            {results.length > 0 ? results[results.length - 1].resultVal : `0.00 ${settings.unit}`}
+            {getResultValueString(
+              results.length > 0
+                ? results[results.length - 1].resultVal
+                : 0
+              , settings)}
           </Typography>
           <TableContainer
             component={Paper}
@@ -321,7 +331,7 @@ function App() {
                   <TableCell align="center">{result.time}</TableCell>
                   <TableCell align="center">{result.timeDelta}</TableCell>
                   <TableCell align="center">{result.laserVal}</TableCell>
-                  <TableCell align="center">{result.resultVal}</TableCell>
+                  <TableCell align="center">{getResultValueString(result.resultVal, settings)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
