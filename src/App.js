@@ -1,7 +1,7 @@
 import { useEffect, useReducer, useState } from 'react';
 import './App.css';
 import { AppBar, Box, Button, Container, Drawer, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Toolbar, Typography } from '@mui/material';
-import { CircularBuffer } from './circulate-buffer';
+// import { CircularBuffer } from './circulate-buffer';
 import { initAccelerometer, initAudio, initGyroscope } from './sensors';
 import { EventDetector } from './event-detector';
 import SensorsIcon from '@mui/icons-material/Sensors';
@@ -13,11 +13,11 @@ import { DebuggingView } from './DebuggingView';
 import { addConsoleLog } from './consolelog';
 import { SettingsView } from './SettingsView';
 
-const APP_VERSION = 'v0.0.9';
+const APP_VERSION = 'v0.0.10';
 
-const audioBuffer = new CircularBuffer(10000000);
-const accelBuffer = new CircularBuffer(10000000);
-const gyroBuffer = new CircularBuffer(10000000);
+// const audioBuffer = new CircularBuffer(10000000);
+// const accelBuffer = new CircularBuffer(10000000);
+// const gyroBuffer = new CircularBuffer(10000000);
 
 let audioContext = null;
 let accelerometer = null;
@@ -102,8 +102,6 @@ function App() {
           }
         });
         const events = detector.getEventDataList();
-        const unitSign = getUnitSign(settings.unit);
-        addConsoleLog(`${settings.unit} ${unitSign}`);
         setResults((results) => {
           if (events.length > results.length) {
             return events.map((event) => {
@@ -130,21 +128,20 @@ function App() {
   const handleClickStart = () => {
     async function initAC() {
       const { audioContext: ac } = await initAudio((data) => {
-        // addConsoleLog(`get audio data - ${data.t} ${data.samples.length}`);
-        audioBuffer.add(data);
+        // audioBuffer.add(data);
         detector.inputSoundData(data);
       });
       audioContext = ac;
     }
     async function initAccel() {
       const { accelerometer: accel } = await initAccelerometer((data) => {
-        accelBuffer.add(data);
+        // accelBuffer.add(data);
       });
       accelerometer = accel;
     }
     async function initGyro() {
       const { gyroscope: gyro } = await initGyroscope((data) => {
-        gyroBuffer.add(data);
+        // gyroBuffer.add(data);
         detector.inputGyroData(data);
       });
       gyroscope = gyro;
