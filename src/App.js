@@ -1,6 +1,6 @@
-import { useEffect, useReducer, useRef, useState } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import './App.css';
-import { AppBar, Box, Button, ButtonGroup, Container, Divider, Drawer, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Toolbar, Typography } from '@mui/material';
+import { AppBar, Box, Button, Container, Drawer, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Toolbar, Typography } from '@mui/material';
 import { CircularBuffer } from './circulate-buffer';
 import { initAccelerometer, initAudio, initGyroscope } from './sensors';
 import { EventDetector } from './event-detector';
@@ -11,8 +11,9 @@ import PauseCircleFilledRoundedIcon from '@mui/icons-material/PauseCircleFilledR
 import NotStartedRoundedIcon from '@mui/icons-material/NotStartedRounded';
 import { DebuggingView } from './DebuggingView';
 import { addConsoleLog } from './consolelog';
+import { SettingsView } from './SettingsView';
 
-const APP_VERSION = 'v0.0.6';
+const APP_VERSION = 'v0.0.7';
 
 const audioBuffer = new CircularBuffer(10000000);
 const accelBuffer = new CircularBuffer(10000000);
@@ -25,6 +26,7 @@ let gyroscope = null;
 const detector = new EventDetector();
 
 let startTime = 0;
+
 
 function settingViewReducer(state, action) {
   if (action.type === 'open') return { ...state, isOpen: true };
@@ -40,21 +42,20 @@ function measurementReducer(state, action) {
   throw Error('Unknown action.');
 }
 
+function getUnitSign(unit) {
+  if (unit === 'm') return 'm';
+  else if (unit === 'ft') return 'ft';
+  else if (unit === 'mPerSteps') return 'm/steps';
+  else if (unit === 'ftPerSteps') return 'ft/steps';
+  return '';
+}
+
 function App() {
   const [settingViewState, dispatchSettingView] = useReducer(settingViewReducer, { isOpen: false });
   const [measurementState, dispatchMeasurement] = useReducer(measurementReducer, { isInit: false, isStart: false });
   const [fetchDataIntervalId, setFetchDataIntervalId] = useState(null);
   const [flagChageLogs, setFlagChangeLogs] = useState([]);
   const [results, setResults] = useState([]);
-  const inputRefs = {
-    alCoffRef: useRef(null),
-    blCoffRef: useRef(null),
-    clCoffRef: useRef(null),
-    anrCoffRef: useRef(null),
-    bnrCoffRef: useRef(null),
-    cnrCoffRef: useRef(null),
-    userParameterRef: useRef(null),
-  }
   const [settings, setSettings] = useState({
     alCoff: 4.5741,
     blCoff: -1.336,
@@ -63,6 +64,11 @@ function App() {
     bnrCoff: 0.155,
     cnrCoff: 0.4794,
     userParameter: 2.5,
+    unit: 'm',
+    mPerM: 1,
+    ftPerM: 3.28084,
+    mPerSteps: 0.8,
+    ftPerSteps: 2.3,
   });
 
   useEffect(() => {
@@ -91,9 +97,19 @@ function App() {
               const timeDelta = (event.ts2Time - event.ts1Time) * 0.001; // sec 로 변환
               const laserVal = settings.alCoff * (timeDelta ** settings.blCoff) + settings.clCoff;
               const resultVal =
-                (settings.anrCoff * (laserVal ** 2) + settings.bnrCoff * laserVal + settings.cnrCoff)
-                * settings.userParameter;
-              return { laserVal, resultVal, time: event.trTime - startTime, timeDelta };
+                `${(settings.anrCoff * (laserVal ** 2) + settings.bnrCoff * laserVal + settings.cnrCoff)
+                * settings.userParameter
+                * (settings.unit === 'm' ? settings.mPerM
+                  : settings.unit === 'ft' ? settings.ftPerM
+                  : settings.unit === 'mPerSteps' ? settings.mPerSteps
+                  : settings.unit === 'ftPerSteps' ? settings.ftPerSteps
+                  : 1).toFixed(2)} ${getUnitSign(settings.unit)}`;
+              return {
+                laserVal,
+                resultVal,
+                time: event.trTime - startTime,
+                timeDelta,
+              };
             });
           } else {
             return results;
@@ -146,15 +162,24 @@ function App() {
     dispatchMeasurement({ type: 'start' });
   };
 
-  const handleClickApply = (e) => {
+  const handleClickApply = ({
+    alCoff, blCoff, clCoff, anrCoff, bnrCoff, cnrCoff, userParameter,
+    unit, mPerM, ftPerM, mPerSteps, ftPerSteps,
+  }) => {
     try {
       setSettings({
-        alCoff: Number(inputRefs.alCoffRef.current.value),
-        blCoff: Number(inputRefs.blCoffRef.current.value),
-        clCoff: Number(inputRefs.clCoffRef.current.value),
-        anrCoff: Number(inputRefs.anrCoffRef.current.value),
-        bnrCoff: Number(inputRefs.bnrCoffRef.current.value),
-        cnrCoff: Number(inputRefs.cnrCoffRef.current.value),
+        alCoff: Number(alCoff),
+        blCoff: Number(blCoff),
+        clCoff: Number(clCoff),
+        anrCoff: Number(anrCoff),
+        bnrCoff: Number(bnrCoff),
+        cnrCoff: Number(cnrCoff),
+        userParameter: Number(userParameter),
+        unit,
+        mPerM: Number(mPerM),
+        ftPerM: Number(ftPerM),
+        mPerSteps: Number(mPerSteps),
+        ftPerSteps: Number(ftPerSteps),
       });
       dispatchSettingView({ type: 'close' })
     } catch(e) {
@@ -238,7 +263,7 @@ function App() {
               margin: '20px 0'
             }}
           >
-            {results.length > 0 ? results[results.length - 1].resultVal : '0'}
+            {results.length > 0 ? results[results.length - 1].resultVal : `0.00 ${settings.unit}`}
           </Typography>
           <TableContainer
             component={Paper}
@@ -312,139 +337,10 @@ function App() {
         open={settingViewState.isOpen}
         onClose={() => dispatchSettingView({ type: 'toggle' })}
       >
-        <Box
-          // component="form"
-          sx={{
-            padding: '20px',
-            '& .MuiTextField-root': { m: 1, width: '25ch' },
-            '& .MuiTypography-root': { marginTop: '12px' },
-            '& .MuiDivider-root': { margin: '12px 0' },
-          }}
-          noValidate
-          autoComplete="off"
-        >
-          <Typography
-            variant="h5"
-          >
-            Settings
-          </Typography>
-          <Divider/>
-          <Typography
-            variant="h6"
-          >
-            Parameters
-          </Typography>
-          <div>
-            <TextField
-              label="ALcoff"
-              name="alCoff"
-              defaultValue={settings.alCoff}
-              type="number"
-              size="small"
-              inputRef={inputRefs.alCoffRef}
-            />
-          </div>
-          <div>
-            <TextField
-              label="BLcoff"
-              name="blCoff"
-              defaultValue={settings.blCoff}
-              type="number"
-              size="small"
-              inputRef={inputRefs.blCoffRef}
-            />
-          </div>
-          <div>
-            <TextField
-              label="CLcoff"
-              name="clCoff"
-              defaultValue={settings.clCoff}
-              type="number"
-              size="small"
-              inputRef={inputRefs.clCoffRef}
-            />
-          </div>
-          <div>
-            <TextField
-              label="ANRcoff"
-              name="anrCoff"
-              defaultValue={settings.anrCoff}
-              type="number"
-              size="small"
-              inputRef={inputRefs.anrCoffRef}
-            />
-          </div>
-          <div>
-            <TextField
-              label="BNRcoff"
-              name="bnrCoff"
-              defaultValue={settings.bnrCoff}
-              type="number"
-              size="small"
-              inputRef={inputRefs.bnrCoffRef}
-            />
-          </div>
-          <div>
-            <TextField
-              label="CNRcoff"
-              name="cnrCoff"
-              defaultValue={settings.cnrCoff}
-              type="number"
-              size="small"
-              inputRef={inputRefs.cnrCoffRef}
-            />
-          </div>
-          <div>
-            <TextField
-              label="User_Parameter"
-              name="userParameter"
-              defaultValue={settings.userParameter}
-              type="number"
-              size="small"
-              inputRef={inputRefs.userParameterRef}
-            />
-          </div>
-          <Divider/>
-          <Typography
-            variant="h6"
-          >
-            Unit
-          </Typography>
-          <div>
-            <TextField
-              label="setting1"
-              defaultValue="0"
-              type="number"
-              size="small"
-            />
-          </div>
-          <div>
-            <TextField
-              label="setting1"
-              defaultValue="0"
-              type="number"
-              size="small"
-            />
-          </div>
-          <div>
-            <TextField
-              label="setting1"
-              defaultValue="0"
-              type="number"
-              size="small"
-            />
-          </div>
-          <Divider/>
-          <ButtonGroup>
-            <Button
-              variant="contained"
-              type="submit"
-              onClick={handleClickApply}
-            >
-              Apply
-            </Button>
-          </ButtonGroup>
-        </Box>
+        <SettingsView
+          initialSettings={settings}
+          onClickApply={handleClickApply}
+        />
       </Drawer>
     </div>
   );
