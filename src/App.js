@@ -13,7 +13,7 @@ import { DebuggingView } from './DebuggingView';
 import { addConsoleLog } from './consolelog';
 import { SettingsView } from './SettingsView';
 
-const APP_VERSION = 'v0.0.10';
+const APP_VERSION = 'v0.0.11';
 
 // const audioBuffer = new CircularBuffer(10000000);
 // const accelBuffer = new CircularBuffer(10000000);
@@ -26,7 +26,7 @@ let gyroscope = null;
 const detector = new EventDetector();
 
 let startTime = 0;
-
+const INITIALIZE_TIME = 7000;
 
 function settingViewReducer(state, action) {
   if (action.type === 'open') return { ...state, isOpen: true };
@@ -58,7 +58,7 @@ function getResultValueString(resultVal, settings) {
     : settings.unit === 'mPerSteps' ? settings.mPerSteps
     : settings.unit === 'ftPerSteps' ? settings.ftPerSteps
     : 1)
-  ).toFixed(2)} ${getUnitSign(settings.unit)}`;
+  ).toFixed(1)} ${getUnitSign(settings.unit)}`;
 }
 
 function App() {
@@ -121,7 +121,7 @@ function App() {
             return results;
           }
         });
-      }, 1000)
+      }, INITIALIZE_TIME)
     );
   }
 
@@ -263,7 +263,7 @@ function App() {
               </Button>
           }
           <Typography
-            variant="h5"
+            variant="h1"
             sx={{
               margin: '20px 0'
             }}
