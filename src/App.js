@@ -13,7 +13,7 @@ import { DebuggingView } from './DebuggingView';
 import { addConsoleLog } from './consolelog';
 import { SettingsView } from './SettingsView';
 
-const APP_VERSION = 'v0.0.11';
+const APP_VERSION = 'v0.0.12';
 
 // const audioBuffer = new CircularBuffer(10000000);
 // const accelBuffer = new CircularBuffer(10000000);
@@ -27,6 +27,7 @@ const detector = new EventDetector();
 
 let startTime = 0;
 const INITIALIZE_TIME = 7000;
+const EVENT_FECHING_TIME = 500;
 
 function settingViewReducer(state, action) {
   if (action.type === 'open') return { ...state, isOpen: true };
@@ -58,7 +59,7 @@ function getResultValueString(resultVal, settings) {
     : settings.unit === 'mPerSteps' ? settings.mPerSteps
     : settings.unit === 'ftPerSteps' ? settings.ftPerSteps
     : 1)
-  ).toFixed(1)} ${getUnitSign(settings.unit)}`;
+  ).toFixed(1)}`;
 }
 
 function App() {
@@ -121,7 +122,7 @@ function App() {
             return results;
           }
         });
-      }, INITIALIZE_TIME)
+      }, EVENT_FECHING_TIME)
     );
   }
 
@@ -153,7 +154,7 @@ function App() {
       setfetchDataInterval();
       dispatchMeasurement({ type: 'init' });
       startTime = Date.now();
-    }, 1000);
+    }, INITIALIZE_TIME);
     dispatchMeasurement({ type: 'start' });
   };
 
@@ -265,14 +266,15 @@ function App() {
           <Typography
             variant="h1"
             sx={{
-              margin: '20px 0'
+              margin: '20px 0',
+              fontSize: '8rem'
             }}
           >
             {getResultValueString(
               results.length > 0
                 ? results[results.length - 1].resultVal
                 : 0
-              , settings)}
+              , settings)} <span style={{fontSize:'20px'}}>{getUnitSign(settings.unit)}</span>
           </Typography>
           <TableContainer
             component={Paper}
