@@ -1,6 +1,6 @@
 import { addConsoleLog } from "./consolelog";
 
-const TR_WAITING = 12000;
+const TR_WAITING = 7000;
 const TS_CONDITION_MIN_VALUE = 0.4;
 const TS2_CONDITION_MIN_TIME = 100;
 const TS2_CONDITION_MAX_TIME = 2000;
