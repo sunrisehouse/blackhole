@@ -9,10 +9,10 @@ export class EventDetector {
     this.eventDataList = []; // 이벤트 데이터를 리스트로 저장
     this.flagChangeLog = []; // 플래그 변경 이력을 저장
     
-    this.initialize();
+    this.initializeState();
   }
 
-  initialize() {
+  initializeState() {
     this.flagTs1 = false; // 첫 번째 소리 조건 (기존 flagTr1)
     this.flagTs2 = false; // 두 번째 소리 조건 (기존 flagTr2)
     this.flagTr = false;
@@ -32,7 +32,7 @@ export class EventDetector {
   }
 
   start() {
-    this.initialize();
+    this.initializeState();
     this.isOn = true;
   }
 
