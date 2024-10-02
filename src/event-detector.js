@@ -1,6 +1,11 @@
 import { addConsoleLog } from "./consolelog";
 
 const TR_WAITING = 12000;
+const TS_CONDITION_MIN_VALUE = 0.4;
+const TS2_CONDITION_MIN_TIME = 100;
+const TS2_CONDITION_MAX_TIME = 2000;
+const TR_CONDITION_MAX_TIME = 70;
+const TR_CONDITION_MIN_VALUE = 0.2;
 
 export class EventDetector {
   constructor() {
@@ -71,11 +76,11 @@ export class EventDetector {
       if (!this.flagTr) {
         if (!this.flagTs1) {
           // 0.4 이상의 값이 있는지 확인하여 flagTs1 설정
-          if (samples.some(sample => sample >= 0.4)) {
+          if (samples.some(sample => sample >= TS_CONDITION_MIN_VALUE)) {
             this.flagTs1 = true;
-            this.soundTs1Sample = samples.find(sample => sample >= 0.4);
+            this.soundTs1Sample = samples.find(sample => sample >= TS_CONDITION_MIN_VALUE);
             this.soundTs1Time = t;
-            this.logFlagChange('flagTs1', true, t, '0.4 이상의 sample 발견');
+            this.logFlagChange('flagTs1', true, t, `${TS_CONDITION_MIN_VALUE} 이상의 sample 발견`);
           }
         } 
         // flagTs1이 설정된 후 100ms ~ 2000ms 사이에 flagTs2 조건 확인
@@ -83,16 +88,16 @@ export class EventDetector {
           const timeDiff = t - this.soundTs1Time;
     
           // 2000 milliseconds가 지났으면 flagTs1을 false로 재설정
-          if (timeDiff > 2000) {
+          if (timeDiff > TS2_CONDITION_MAX_TIME) {
             this.resetFlags(t, `Resetting flagTs1 and flagTs2 after 2000ms timeout.`);
           } 
           // 100ms ~ 2000ms 사이에 flagTs2 조건 확인
-          else if (timeDiff >= 100 && timeDiff <= 2000) {
-            if (samples.some(sample => sample >= 0.4)) {
+          else if (timeDiff >= TS2_CONDITION_MIN_TIME && timeDiff <= TS2_CONDITION_MAX_TIME) {
+            if (samples.some(sample => sample >= TS_CONDITION_MIN_VALUE)) {
               this.flagTs2 = true;
-              this.soundTs2Sample = samples.find(sample => sample >= 0.4);
+              this.soundTs2Sample = samples.find(sample => sample >= TS_CONDITION_MIN_VALUE);
               this.soundTs2Time = t; // flagTs2가 트리거된 시간 기록
-              this.logFlagChange('flagTs2', true, t, 'flagTs1=true 일 때 100 ~ 2000 사이에 0.4 이상의 sample 발견');
+              this.logFlagChange('flagTs2', true, t, `flagTs1=true 일 때 100 ~ 2000 사이에 ${TS_CONDITION_MIN_VALUE} 이상의 sample 발견`);
             }
           }
         }
@@ -117,8 +122,8 @@ export class EventDetector {
           const timeSinceFlagTs2 = t - this.soundTs2Time; // flagTs2가 트리거된 시간과 비교
     
           // flagTs2가 설정된 후 70ms 이내에 가속도 값이 0.2 이상이어야 함
-          if (timeSinceFlagTs2 <= 70) {
-            if (a >= 0.2) {
+          if (timeSinceFlagTs2 <= TR_CONDITION_MAX_TIME) {
+            if (a >= TR_CONDITION_MIN_VALUE) {
               this.flagTr = true;
               this.trEvent.time = t;
               this.trEvent.value = a;
