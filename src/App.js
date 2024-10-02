@@ -13,7 +13,7 @@ import { DebuggingView } from './DebuggingView';
 import { addConsoleLog } from './consolelog';
 import { SettingsView } from './SettingsView';
 
-const APP_VERSION = 'v0.0.12';
+const APP_VERSION = 'v0.0.13';
 
 // const audioBuffer = new CircularBuffer(10000000);
 // const accelBuffer = new CircularBuffer(10000000);
@@ -151,6 +151,7 @@ function App() {
     initAccel();
     initGyro();
     setTimeout(() => {
+      detector.start();
       setfetchDataInterval();
       dispatchMeasurement({ type: 'init' });
       startTime = Date.now();
@@ -159,11 +160,13 @@ function App() {
   };
 
   const handleClickPause = () => {
+    detector.stop();
     if (fetchDataIntervalId) clearInterval(fetchDataIntervalId);
     dispatchMeasurement({ type: 'pause' });
   };
 
   const handleClickRestart = () => {
+    detector.start();
     setfetchDataInterval();
     dispatchMeasurement({ type: 'start' });
   };
