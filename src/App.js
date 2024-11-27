@@ -72,10 +72,10 @@ function App() {
     alCoff: 4.5741,
     blCoff: -1.336,
     clCoff: 0.0,
-    anrCoff: 1.0403,
-    bnrCoff: 1.3827,
+    anrCoff: 2.7543,
+    bnrCoff: -1.513,
     cnrCoff: -0.1557,
-    userParameter: 2.5,
+    userParameter: 1.0,
     unit: 'm',
     mPerM: 1,
     ftPerM: 3.28084,
@@ -109,7 +109,7 @@ function App() {
               const timeDelta = (event.ts2Time - event.ts1Time) * 0.001; // sec 로 변환
               const laserVal = settings.alCoff * (timeDelta ** settings.blCoff) + settings.clCoff;
               const resultVal =
-                (settings.anrCoff * (timeDelta ** 2) + settings.bnrCoff * timeDelta + settings.cnrCoff)
+                (settings.anrCoff * (timeDelta ** settings.bnrCoff))
                 * settings.userParameter;
               return {
                 laserVal,
@@ -291,24 +291,24 @@ function App() {
               <TableHead>
                 <TableRow>
                   {/* <TableCell>Parameters</TableCell> */}
-                  <TableCell align="center">ALcoff</TableCell>
-                  <TableCell align="center">BLcoff</TableCell>
-                  <TableCell align="center">CLcoff</TableCell>
+                  {/* <TableCell align="center">ALcoff</TableCell> */}
+                  {/* <TableCell align="center">BLcoff</TableCell> */}
+                  {/* <TableCell align="center">CLcoff</TableCell> */}
                   <TableCell align="center">ANRcoff</TableCell>
                   <TableCell align="center">BNRcoff</TableCell>
-                  <TableCell align="center">CNRcoff</TableCell>
+                  {/* <TableCell align="center">CNRcoff</TableCell> */}
                   <TableCell align="center">User_Parameter</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 <TableRow>
                   {/* <TableCell align="center"></TableCell> */}
-                  <TableCell align="center">{settings.alCoff}</TableCell>
-                  <TableCell align="center">{settings.blCoff}</TableCell>
-                  <TableCell align="center">{settings.clCoff}</TableCell>
+                  {/* <TableCell align="center">{settings.alCoff}</TableCell> */}
+                  {/* <TableCell align="center">{settings.blCoff}</TableCell> */}
+                  {/* <TableCell align="center">{settings.clCoff}</TableCell> */}
                   <TableCell align="center">{settings.anrCoff}</TableCell>
                   <TableCell align="center">{settings.bnrCoff}</TableCell>
-                  <TableCell align="center">{settings.cnrCoff}</TableCell>
+                  {/* <TableCell align="center">{settings.cnrCoff}</TableCell> */}
                   <TableCell align="center">{settings.userParameter}</TableCell>
                 </TableRow>
               </TableBody>
