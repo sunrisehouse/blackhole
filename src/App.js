@@ -29,6 +29,7 @@ let startTime = 0;
 const INITIALIZE_TIME = 7000;
 const EVENT_FECHING_TIME = 500;
 
+
 function settingViewReducer(state, action) {
   if (action.type === 'open') return { ...state, isOpen: true };
   else if (action.type === 'close') return { ...state, isOpen: false };
@@ -75,13 +76,14 @@ function App() {
     anrCoff: 2.7543,
     bnrCoff: -1.513,
     cnrCoff: -0.1557,
-    userParameter: 1.0,
+    userParameter: 0.65,
     unit: 'm',
     mPerM: 1,
     ftPerM: 3.28084,
     mPerSteps: 0.8,
     ftPerSteps: 2.3,
   });
+
 
   useEffect(() => {
     return () => {
@@ -109,9 +111,10 @@ function App() {
               const timeDelta = (event.ts2Time - event.ts1Time) * 0.001; // sec 로 변환
               const laserVal = settings.alCoff * (timeDelta ** settings.blCoff) + settings.clCoff;
               const resultVal =
-                (settings.anrCoff * (timeDelta ** settings.bnrCoff))
-                * settings.userParameter;
+                (settings.anrCoff * (timeDelta ** settings.bnrCoff));
+              const finalVal = (settings.anrCoff * (timeDelta ** settings.bnrCoff)) / settings.userParameter;
               return {
+                finalVal,
                 laserVal,
                 resultVal,
                 time: event.trTime - startTime,
@@ -282,6 +285,22 @@ function App() {
             settings
             )} 
             <span style={{fontSize:'20px'}}>{getUnitSign(settings.unit)}</span>
+          </Typography>
+          <Typography
+            variant="h1"
+            sx={{
+              margin: '20px 0',
+              fontSize: '5rem'
+            }}
+          >
+            ({!measurementState.isInit && measurementState.isStart
+            ? '##.#'  // 초기화 중일 때만 "##.#" 표시
+            : getResultValueString(
+            results.length > 0
+            ? results[results.length - 1].finalVal
+            : 0,
+            settings
+            )})
           </Typography>
           <TableContainer
             component={Paper}
