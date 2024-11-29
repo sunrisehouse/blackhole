@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/blackhole/build/static/css/main.0d6be994.css",
-    "main.js": "/blackhole/build/static/js/main.a5d4dff0.js",
+    "main.js": "/blackhole/build/static/js/main.9876fed0.js",
     "static/js/453.17c69e1a.chunk.js": "/blackhole/build/static/js/453.17c69e1a.chunk.js",
     "static/media/roboto-latin-700-normal.woff2": "/blackhole/build/static/media/roboto-latin-700-normal.4535474e1cf8598695ad.woff2",
     "static/media/roboto-latin-500-normal.woff2": "/blackhole/build/static/media/roboto-latin-500-normal.7077203b1982951ecf76.woff2",
@@ -61,11 +61,11 @@
     "static/media/roboto-greek-ext-400-normal.woff": "/blackhole/build/static/media/roboto-greek-ext-400-normal.16eb83b4a3b1ea994243.woff",
     "index.html": "/blackhole/build/index.html",
     "main.0d6be994.css.map": "/blackhole/build/static/css/main.0d6be994.css.map",
-    "main.a5d4dff0.js.map": "/blackhole/build/static/js/main.a5d4dff0.js.map",
+    "main.9876fed0.js.map": "/blackhole/build/static/js/main.9876fed0.js.map",
     "453.17c69e1a.chunk.js.map": "/blackhole/build/static/js/453.17c69e1a.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.0d6be994.css",
-    "static/js/main.a5d4dff0.js"
+    "static/js/main.9876fed0.js"
   ]
 }
