@@ -140,6 +140,7 @@ function App() {
     async function initAccel() {
       const { accelerometer: accel } = await initAccelerometer((data) => {
         // accelBuffer.add(data);
+        detector.inputAccelData(data)
       });
       accelerometer = accel;
     }

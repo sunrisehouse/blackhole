@@ -6,6 +6,7 @@ const TS2_CONDITION_MIN_TIME = 230;
 const TS2_CONDITION_MAX_TIME = 2000;
 const TR_CONDITION_MAX_TIME = 70;
 const TR_CONDITION_MIN_VALUE = 0.2;
+const TR_CONDITION_MIN_VALUE_2 = 10.2;
 
 export class EventDetector {
   constructor() {
@@ -105,8 +106,51 @@ export class EventDetector {
     }
   }
 
-  // 가속도 데이터 입력
+  // 각속도 데이터 입력
   inputGyroData({ a, t }) {
+    if (this.isOn) {
+      if (this.flagTr) {
+        const timeDiff = t - this.trEvent.time;
+        if (timeDiff > TR_WAITING) {
+          this.flagTr = false;
+          this.trEvent.time = null;
+          this.trEvent.value = null;
+          this.logFlagChange('flagTr', false, t, '12초뒤에 flagTr false 로 바꿈');
+        }
+      }
+      if (!this.flagTr) {
+        if (this.flagTs2) {
+          const timeSinceFlagTs2 = t - this.soundTs2Time; // flagTs2가 트리거된 시간과 비교
+    
+          // flagTs2가 설정된 후 70ms 이내에 각속도 값이 0.2 이상이어야 함
+          if (timeSinceFlagTs2 <= TR_CONDITION_MAX_TIME) {
+            if (a >= TR_CONDITION_MIN_VALUE) {
+              this.flagTr = true;
+              this.trEvent.time = t;
+              this.trEvent.value = a;
+              const eventData = {
+                ts1Sample: this.soundTs1Sample,
+                ts1Time: this.soundTs1Time,
+                ts2Sample: this.soundTs2Sample,
+                ts2Time: this.soundTs2Time,
+                trGyro: a,
+                trTime: t,
+              };
+              // 이벤트 데이터를 리스트에 저장
+              this.eventDataList.push(eventData);
+              this.logFlagChange('flagTr', a, t, `Event detected at time ${t}, gyro: ${a}`);
+            }
+          } else {
+            // 70ms가 경과하면 flagTs2를 false로 설정
+            this.flagTs2 = false;
+            this.logFlagChange('flagTs2', false, t, `Resetting flagTs2 after 70ms timeout with no sufficient acceleration.`);
+          }
+        }
+      }
+    }
+  }
+
+  inputAccelData({ a, t }) {
     if (this.isOn) {
       if (this.flagTr) {
         const timeDiff = t - this.trEvent.time;
@@ -123,7 +167,7 @@ export class EventDetector {
     
           // flagTs2가 설정된 후 70ms 이내에 가속도 값이 0.2 이상이어야 함
           if (timeSinceFlagTs2 <= TR_CONDITION_MAX_TIME) {
-            if (a >= TR_CONDITION_MIN_VALUE) {
+            if (a >= TR_CONDITION_MIN_VALUE_2) {
               this.flagTr = true;
               this.trEvent.time = t;
               this.trEvent.value = a;
@@ -148,6 +192,7 @@ export class EventDetector {
       }
     }
   }
+
 
   // 플래그 초기화
   resetFlags(t, message) {
