@@ -13,7 +13,7 @@ import { DebuggingView } from './DebuggingView';
 import { addConsoleLog } from './consolelog';
 import { SettingsView } from './SettingsView';
 
-const APP_VERSION = 'v0.0.14';
+const APP_VERSION = 'v0.0.15';
 
 // const audioBuffer = new CircularBuffer(10000000);
 // const accelBuffer = new CircularBuffer(10000000);
