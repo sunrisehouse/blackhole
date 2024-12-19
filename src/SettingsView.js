@@ -1,4 +1,5 @@
-import { Box, Button, ButtonGroup, Checkbox, Divider, FormControlLabel, FormGroup, TextField, Typography } from "@mui/material";
+import { Box, Button, ButtonGroup, Divider, TextField, Typography } from "@mui/material";
+// import { Box, Button, ButtonGroup, Checkbox, Divider, FormControlLabel, FormGroup, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 
 export function SettingsView({
@@ -13,12 +14,12 @@ export function SettingsView({
       [event.target.name]: event.target.value,
     }));
   }
-  const handleUnitCheckBoxChange = (event) => {
-    setSettings((prevUnitChekcs) => ({
-      ...prevUnitChekcs,
-      unit: event.target.name,
-    }));
-  };
+  // const handleUnitCheckBoxChange = (event) => {
+  //   setSettings((prevUnitChekcs) => ({
+  //     ...prevUnitChekcs,
+  //     unit: event.target.name,
+  //   }));
+  // };
 
   const handleClickApply = () => {
     onClickApply(settings);
@@ -51,6 +52,16 @@ export function SettingsView({
       <div>
         <TextField
           label="START PAUSE TIME (sec)"
+          name="INITIALIZE_TIME"
+          type="number"
+          size="small"
+          value={settings.INITIALIZE_TIME}
+          onChange={handleParametersChange}
+        />
+      </div>
+      <div>
+        <TextField
+          label="RESUME PAUSE TIME (sec)"
           name="TR_WAITING"
           type="number"
           size="small"

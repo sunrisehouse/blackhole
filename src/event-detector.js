@@ -1,20 +1,21 @@
 import { addConsoleLog } from "./consolelog";
-import { 
-  TR_WAITING, 
-  TS_CONDITION_MIN_VALUE, 
-  TS2_CONDITION_MIN_TIME, 
-  TS2_CONDITION_MAX_TIME, 
-  TR_CONDITION_MAX_TIME, 
-  TR_CONDITION_MIN_VALUE, 
-  TR_CONDITION_MIN_VALUE_2 
-} from './App.js';
+
 
 // 기존 코드 유지
 
 
+
 export class EventDetector {
-  constructor() {
+  constructor({TR_WAITING, TS_CONDITION_MIN_VALUE, TR_CONDITION_MIN_VALUE_2, TR_CONDITION_MIN_VALUE, TS2_CONDITION_MAX_TIME, TS2_CONDITION_MIN_TIME, TR_CONDITION_MAX_TIME}) {
     this.isOn = false;
+
+    this.TR_WAITING = TR_WAITING
+    this.TS_CONDITION_MIN_VALUE = TS_CONDITION_MIN_VALUE
+    this.TR_CONDITION_MIN_VALUE_2 = TR_CONDITION_MIN_VALUE_2
+    this.TR_CONDITION_MIN_VALUE = TR_CONDITION_MIN_VALUE
+    this.TS2_CONDITION_MAX_TIME = TS2_CONDITION_MAX_TIME
+    this.TS2_CONDITION_MIN_TIME = TS2_CONDITION_MIN_TIME
+    this.TR_CONDITION_MAX_TIME = TR_CONDITION_MAX_TIME
 
     this.eventDataList = []; // 이벤트 데이터를 리스트로 저장
     this.flagChangeLog = []; // 플래그 변경 이력을 저장
@@ -71,21 +72,21 @@ export class EventDetector {
     if (this.isOn) {
       if (this.flagTr) {
         const timeDiff = t - this.trEvent.time;
-        if (timeDiff > TR_WAITING) {
+        if (timeDiff > this.TR_WAITING) {
           this.flagTr = false;
           this.trEvent.time = null;
           this.trEvent.value = null;
-          this.logFlagChange('flagTr', false, t, '12초뒤에 flagTr false 로 바꿈');
+          this.logFlagChange('flagTr', false, t, 'flagTr false 로 바꿈');
         }
       }
       if (!this.flagTr) {
         if (!this.flagTs1) {
           // 0.4 이상의 값이 있는지 확인하여 flagTs1 설정
-          if (samples.some(sample => sample >= TS_CONDITION_MIN_VALUE)) {
+          if (samples.some(sample => sample >= this.TS_CONDITION_MIN_VALUE)) {
             this.flagTs1 = true;
-            this.soundTs1Sample = samples.find(sample => sample >= TS_CONDITION_MIN_VALUE);
+            this.soundTs1Sample = samples.find(sample => sample >= this.TS_CONDITION_MIN_VALUE);
             this.soundTs1Time = t;
-            this.logFlagChange('flagTs1', true, t, `${TS_CONDITION_MIN_VALUE} 이상의 sample 발견`);
+            this.logFlagChange('flagTs1', true, t, `${this.TS_CONDITION_MIN_VALUE} 이상의 sample 발견`);
           }
         } 
         // flagTs1이 설정된 후 100ms ~ 2000ms 사이에 flagTs2 조건 확인
@@ -93,16 +94,16 @@ export class EventDetector {
           const timeDiff = t - this.soundTs1Time;
     
           // 2000 milliseconds가 지났으면 flagTs1을 false로 재설정
-          if (timeDiff > TS2_CONDITION_MAX_TIME) {
+          if (timeDiff > this.TS2_CONDITION_MAX_TIME) {
             this.resetFlags(t, `Resetting flagTs1 and flagTs2 after 2000ms timeout.`);
           } 
           // 100ms ~ 2000ms 사이에 flagTs2 조건 확인
-          else if (timeDiff >= TS2_CONDITION_MIN_TIME && timeDiff <= TS2_CONDITION_MAX_TIME) {
-            if (samples.some(sample => sample >= TS_CONDITION_MIN_VALUE)) {
+          else if (timeDiff >= this.TS2_CONDITION_MIN_TIME && timeDiff <= this.TS2_CONDITION_MAX_TIME) {
+            if (samples.some(sample => sample >= this.TS_CONDITION_MIN_VALUE)) {
               this.flagTs2 = true;
-              this.soundTs2Sample = samples.find(sample => sample >= TS_CONDITION_MIN_VALUE);
+              this.soundTs2Sample = samples.find(sample => sample >= this.TS_CONDITION_MIN_VALUE);
               this.soundTs2Time = t; // flagTs2가 트리거된 시간 기록
-              this.logFlagChange('flagTs2', true, t, `flagTs1=true 일 때 100 ~ 2000 사이에 ${TS_CONDITION_MIN_VALUE} 이상의 sample 발견`);
+              this.logFlagChange('flagTs2', true, t, `flagTs1=true 일 때 100 ~ 2000 사이에 ${this.TS_CONDITION_MIN_VALUE} 이상의 sample 발견`);
             }
           }
         }
@@ -115,11 +116,11 @@ export class EventDetector {
     if (this.isOn) {
       if (this.flagTr) {
         const timeDiff = t - this.trEvent.time;
-        if (timeDiff > TR_WAITING) {
+        if (timeDiff > this.TR_WAITING) {
           this.flagTr = false;
           this.trEvent.time = null;
           this.trEvent.value = null;
-          this.logFlagChange('flagTr', false, t, '12초뒤에 flagTr false 로 바꿈');
+          this.logFlagChange('flagTr', false, t, 'flagTr false 로 바꿈');
         }
       }
       if (!this.flagTr) {
@@ -127,8 +128,8 @@ export class EventDetector {
           const timeSinceFlagTs2 = t - this.soundTs2Time; // flagTs2가 트리거된 시간과 비교
     
           // flagTs2가 설정된 후 70ms 이내에 각속도 값이 0.2 이상이어야 함
-          if (timeSinceFlagTs2 <= TR_CONDITION_MAX_TIME) {
-            if (a >= TR_CONDITION_MIN_VALUE) {
+          if (timeSinceFlagTs2 <= this.TR_CONDITION_MAX_TIME) {
+            if (a >= this.TR_CONDITION_MIN_VALUE) {
               this.flagTr = true;
               this.trEvent.time = t;
               this.trEvent.value = a;
@@ -158,11 +159,11 @@ export class EventDetector {
     if (this.isOn) {
       if (this.flagTr) {
         const timeDiff = t - this.trEvent.time;
-        if (timeDiff > TR_WAITING) {
+        if (timeDiff > this.TR_WAITING) {
           this.flagTr = false;
           this.trEvent.time = null;
           this.trEvent.value = null;
-          this.logFlagChange('flagTr', false, t, '12초뒤에 flagTr false 로 바꿈');
+          this.logFlagChange('flagTr', false, t, 'flagTr false 로 바꿈');
         }
       }
       if (!this.flagTr) {
@@ -170,8 +171,8 @@ export class EventDetector {
           const timeSinceFlagTs2 = t - this.soundTs2Time; // flagTs2가 트리거된 시간과 비교
     
           // flagTs2가 설정된 후 70ms 이내에 가속도 값이 0.2 이상이어야 함
-          if (timeSinceFlagTs2 <= TR_CONDITION_MAX_TIME) {
-            if (a >= TR_CONDITION_MIN_VALUE_2) {
+          if (timeSinceFlagTs2 <= this.TR_CONDITION_MAX_TIME) {
+            if (a >= this.TR_CONDITION_MIN_VALUE_2) {
               this.flagTr = true;
               this.trEvent.time = t;
               this.trEvent.value = a;

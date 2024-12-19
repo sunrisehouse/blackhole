@@ -27,19 +27,18 @@ let audioContext = null;
 let accelerometer = null;
 let gyroscope = null;
 
-const detector = new EventDetector();
 
 let startTime = 0;
-const INITIALIZE_TIME = 7000;
+// const INITIALIZE_TIME = 5000;
 const EVENT_FECHING_TIME = 500;
 
-export let TR_WAITING = 7000;
-export let TS_CONDITION_MIN_VALUE = 0.4;
-export let TS2_CONDITION_MIN_TIME = 200;
-export let TS2_CONDITION_MAX_TIME = 2000;
-export let TR_CONDITION_MAX_TIME = 70;
-export let TR_CONDITION_MIN_VALUE = 0.2;
-export let TR_CONDITION_MIN_VALUE_2 = 10.2;
+const TR_WAITING = 5000
+const TS_CONDITION_MIN_VALUE = 0.4
+const TR_CONDITION_MIN_VALUE_2 = 10.2
+const TR_CONDITION_MIN_VALUE = 0.2
+const TS2_CONDITION_MAX_TIME = 2000
+const TS2_CONDITION_MIN_TIME = 200
+const TR_CONDITION_MAX_TIME = 70
 
 function settingViewReducer(state, action) {
   if (action.type === 'open') return { ...state, isOpen: true };
@@ -95,12 +94,13 @@ function App() {
   //   ftPerSteps: 2.3,
   // });
   const [settings, setSettings] = useState({
+    INITIALIZE_TIME: 5000,
     TR_WAITING,
     TS_CONDITION_MIN_VALUE,
     TR_CONDITION_MIN_VALUE_2,
     TR_CONDITION_MIN_VALUE,
-    TS2_CONDITION_MIN_TIME,
     TS2_CONDITION_MAX_TIME,
+    TS2_CONDITION_MIN_TIME,
     TR_CONDITION_MAX_TIME,
     alCoff: 4.5741,
     blCoff: -1.336,
@@ -108,7 +108,7 @@ function App() {
     anrCoff: 2.7543,
     bnrCoff: -1.513,
     cnrCoff: -0.1557,
-    userParameter: 0.65,
+    userParameter: 1.0,
     unit: 'm',
     mPerM: 1,
     ftPerM: 3.28084,
@@ -116,6 +116,15 @@ function App() {
     ftPerSteps: 2.3,
   });
 
+  const detector = new EventDetector({
+    TR_WAITING: settings.TR_WAITING, 
+    TS_CONDITION_MIN_VALUE: settings.TS_CONDITION_MIN_VALUE,
+    TR_CONDITION_MIN_VALUE_2: settings.TR_CONDITION_MIN_VALUE_2,
+    TR_CONDITION_MIN_VALUE: settings.TR_CONDITION_MIN_VALUE,
+    TS2_CONDITION_MAX_TIME: settings.TS2_CONDITION_MAX_TIME,
+    TS2_CONDITION_MIN_TIME: settings.TS2_CONDITION_MIN_TIME,
+    TR_CONDITION_MAX_TIME: settings.TR_CONDITION_MAX_TIME,
+  });
 
   useEffect(() => {
     return () => {
@@ -144,7 +153,7 @@ function App() {
               const laserVal = settings.alCoff * (timeDelta ** settings.blCoff) + settings.clCoff;
               const resultVal =
                 (settings.anrCoff * (timeDelta ** settings.bnrCoff));
-              const finalVal = (settings.anrCoff * (timeDelta ** settings.bnrCoff)) / settings.userParameter;
+              const finalVal = (settings.anrCoff * (timeDelta ** settings.bnrCoff)) * settings.userParameter;
               return {
                 finalVal,
                 laserVal,
@@ -191,7 +200,7 @@ function App() {
       setfetchDataInterval();
       dispatchMeasurement({ type: 'init' });
       startTime = Date.now();
-    }, INITIALIZE_TIME);
+    }, settings.INITIALIZE_TIME);
     dispatchMeasurement({ type: 'start' });
   };
 
@@ -208,23 +217,25 @@ function App() {
   };
 
   const handleClickApply = ({
+    INITIALIZE_TIME,
     TR_WAITING,
     TS_CONDITION_MIN_VALUE,
     TR_CONDITION_MIN_VALUE_2,
     TR_CONDITION_MIN_VALUE,
-    TS2_CONDITION_MIN_TIME,
     TS2_CONDITION_MAX_TIME,
+    TS2_CONDITION_MIN_TIME,
     TR_CONDITION_MAX_TIME, alCoff, blCoff, clCoff, anrCoff, bnrCoff, cnrCoff, userParameter,
     unit, mPerM, ftPerM, mPerSteps, ftPerSteps,
   }) => {
     try {
       setSettings({
+        INITIALIZE_TIME: Number(INITIALIZE_TIME),
         TR_WAITING: Number(TR_WAITING),
         TS_CONDITION_MIN_VALUE: Number(TS_CONDITION_MIN_VALUE),
         TR_CONDITION_MIN_VALUE_2: Number(TR_CONDITION_MIN_VALUE_2),
         TR_CONDITION_MIN_VALUE: Number(TR_CONDITION_MIN_VALUE),
-        TS2_CONDITION_MIN_TIME: Number(TS2_CONDITION_MIN_TIME),
         TS2_CONDITION_MAX_TIME: Number(TS2_CONDITION_MAX_TIME),
+        TS2_CONDITION_MIN_TIME: Number(TS2_CONDITION_MIN_TIME),
         TR_CONDITION_MAX_TIME: Number(TR_CONDITION_MAX_TIME),
         alCoff: Number(alCoff),
         blCoff: Number(blCoff),
@@ -239,14 +250,6 @@ function App() {
         mPerSteps: Number(mPerSteps),
         ftPerSteps: Number(ftPerSteps),
       });
-
-      TR_WAITING = settings.TR_WAITING;
-      TS_CONDITION_MIN_VALUE = settings.TS_CONDITION_MIN_VALUE;
-      TR_CONDITION_MIN_VALUE_2 = settings.TR_CONDITION_MIN_VALUE_2;
-      TR_CONDITION_MIN_VALUE = settings.TR_CONDITION_MIN_VALUE;
-      TS2_CONDITION_MIN_TIME = settings.TS2_CONDITION_MIN_TIME;
-      TS2_CONDITION_MAX_TIME = settings.TS2_CONDITION_MAX_TIME;
-      TR_CONDITION_MAX_TIME = settings.TR_CONDITION_MAX_TIME;
 
       dispatchSettingView({ type: 'close' })
     } catch(e) {
