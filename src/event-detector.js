@@ -1,12 +1,16 @@
 import { addConsoleLog } from "./consolelog";
+import { 
+  TR_WAITING, 
+  TS_CONDITION_MIN_VALUE, 
+  TS2_CONDITION_MIN_TIME, 
+  TS2_CONDITION_MAX_TIME, 
+  TR_CONDITION_MAX_TIME, 
+  TR_CONDITION_MIN_VALUE, 
+  TR_CONDITION_MIN_VALUE_2 
+} from './App.js';
 
-const TR_WAITING = 7000;
-const TS_CONDITION_MIN_VALUE = 0.4;
-const TS2_CONDITION_MIN_TIME = 230;
-const TS2_CONDITION_MAX_TIME = 2000;
-const TR_CONDITION_MAX_TIME = 70;
-const TR_CONDITION_MIN_VALUE = 0.2;
-const TR_CONDITION_MIN_VALUE_2 = 10.2;
+// 기존 코드 유지
+
 
 export class EventDetector {
   constructor() {

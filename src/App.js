@@ -13,7 +13,11 @@ import { DebuggingView } from './DebuggingView';
 import { addConsoleLog } from './consolelog';
 import { SettingsView } from './SettingsView';
 
-const APP_VERSION = 'v0.0.15';
+
+// 기존 코드 유지
+
+
+const APP_VERSION = 'v0.0.16';
 
 // const audioBuffer = new CircularBuffer(10000000);
 // const accelBuffer = new CircularBuffer(10000000);
@@ -29,6 +33,13 @@ let startTime = 0;
 const INITIALIZE_TIME = 7000;
 const EVENT_FECHING_TIME = 500;
 
+export let TR_WAITING = 7000;
+export let TS_CONDITION_MIN_VALUE = 0.4;
+export let TS2_CONDITION_MIN_TIME = 200;
+export let TS2_CONDITION_MAX_TIME = 2000;
+export let TR_CONDITION_MAX_TIME = 70;
+export let TR_CONDITION_MIN_VALUE = 0.2;
+export let TR_CONDITION_MIN_VALUE_2 = 10.2;
 
 function settingViewReducer(state, action) {
   if (action.type === 'open') return { ...state, isOpen: true };
@@ -69,7 +80,28 @@ function App() {
   const [fetchDataIntervalId, setFetchDataIntervalId] = useState(null);
   const [flagChageLogs, setFlagChangeLogs] = useState([]);
   const [results, setResults] = useState([]);
+  // const [settings, setSettings] = useState({
+  //   alCoff: 4.5741,
+  //   blCoff: -1.336,
+  //   clCoff: 0.0,
+  //   anrCoff: 2.7543,
+  //   bnrCoff: -1.513,
+  //   cnrCoff: -0.1557,
+  //   userParameter: 0.65,
+  //   unit: 'm',
+  //   mPerM: 1,
+  //   ftPerM: 3.28084,
+  //   mPerSteps: 0.8,
+  //   ftPerSteps: 2.3,
+  // });
   const [settings, setSettings] = useState({
+    TR_WAITING,
+    TS_CONDITION_MIN_VALUE,
+    TR_CONDITION_MIN_VALUE_2,
+    TR_CONDITION_MIN_VALUE,
+    TS2_CONDITION_MIN_TIME,
+    TS2_CONDITION_MAX_TIME,
+    TR_CONDITION_MAX_TIME,
     alCoff: 4.5741,
     blCoff: -1.336,
     clCoff: 0.0,
@@ -176,11 +208,24 @@ function App() {
   };
 
   const handleClickApply = ({
-    alCoff, blCoff, clCoff, anrCoff, bnrCoff, cnrCoff, userParameter,
+    TR_WAITING,
+    TS_CONDITION_MIN_VALUE,
+    TR_CONDITION_MIN_VALUE_2,
+    TR_CONDITION_MIN_VALUE,
+    TS2_CONDITION_MIN_TIME,
+    TS2_CONDITION_MAX_TIME,
+    TR_CONDITION_MAX_TIME, alCoff, blCoff, clCoff, anrCoff, bnrCoff, cnrCoff, userParameter,
     unit, mPerM, ftPerM, mPerSteps, ftPerSteps,
   }) => {
     try {
       setSettings({
+        TR_WAITING: Number(TR_WAITING),
+        TS_CONDITION_MIN_VALUE: Number(TS_CONDITION_MIN_VALUE),
+        TR_CONDITION_MIN_VALUE_2: Number(TR_CONDITION_MIN_VALUE_2),
+        TR_CONDITION_MIN_VALUE: Number(TR_CONDITION_MIN_VALUE),
+        TS2_CONDITION_MIN_TIME: Number(TS2_CONDITION_MIN_TIME),
+        TS2_CONDITION_MAX_TIME: Number(TS2_CONDITION_MAX_TIME),
+        TR_CONDITION_MAX_TIME: Number(TR_CONDITION_MAX_TIME),
         alCoff: Number(alCoff),
         blCoff: Number(blCoff),
         clCoff: Number(clCoff),
@@ -194,6 +239,15 @@ function App() {
         mPerSteps: Number(mPerSteps),
         ftPerSteps: Number(ftPerSteps),
       });
+
+      TR_WAITING = settings.TR_WAITING;
+      TS_CONDITION_MIN_VALUE = settings.TS_CONDITION_MIN_VALUE;
+      TR_CONDITION_MIN_VALUE_2 = settings.TR_CONDITION_MIN_VALUE_2;
+      TR_CONDITION_MIN_VALUE = settings.TR_CONDITION_MIN_VALUE;
+      TS2_CONDITION_MIN_TIME = settings.TS2_CONDITION_MIN_TIME;
+      TS2_CONDITION_MAX_TIME = settings.TS2_CONDITION_MAX_TIME;
+      TR_CONDITION_MAX_TIME = settings.TR_CONDITION_MAX_TIME;
+
       dispatchSettingView({ type: 'close' })
     } catch(e) {
       addConsoleLog(e.message);

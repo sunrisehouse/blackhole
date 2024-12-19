@@ -50,61 +50,71 @@ export function SettingsView({
       </Typography>
       <div>
         <TextField
-          label="ALcoff"
-          name="alCoff"
+          label="START PAUSE TIME (sec)"
+          name="TR_WAITING"
           type="number"
           size="small"
-          value={settings.alCoff}
+          value={settings.TR_WAITING}
           onChange={handleParametersChange}
         />
       </div>
       <div>
         <TextField
-          label="BLcoff"
-          name="blCoff"
+          label="Sound_threshold"
+          name="TS_CONDITION_MIN_VALUE"
           type="number"
           size="small"
-          value={settings.blCoff}
+          value={settings.TS_CONDITION_MIN_VALUE}
           onChange={handleParametersChange}
         />
       </div>
       <div>
         <TextField
-          label="CLcoff"
-          name="clCoff"
+          label="La_threshold"
+          name="TR_CONDITION_MIN_VALUE_2"
           type="number"
           size="small"
-          value={settings.clCoff}
+          value={settings.TR_CONDITION_MIN_VALUE_2}
           onChange={handleParametersChange}
         />
       </div>
       <div>
         <TextField
-          label="ANRcoff"
-          name="anrCoff"
+          label="Ra_threshold"
+          name="TR_CONDITION_MIN_VALUE"
           type="number"
           size="small"
-          value={settings.anrCoff}
+          value={settings.TR_CONDITION_MIN_VALUE}
           onChange={handleParametersChange}
         />
       </div>
       <div>
         <TextField
-          label="BNRcoff"
-          name="bnrCoff"
+          label="Time_available_max (msec)"
+          name="TS2_CONDITION_MAX_TIME"
           type="number"
           size="small"
-          value={settings.bnrCoff}
+          value={settings.TS2_CONDITION_MAX_TIME}
           onChange={handleParametersChange}
         />
       </div>
       <div>
         <TextField
-          label="CNRcoff"
-          name="cnrCoff"
+          label="Time-available_min (msec)"
+          name="TS2_CONDITION_MIN_TIME"
           type="number"
           size="small"
-          value={settings.cnrCoff}
+          value={settings.TS2_CONDITION_MIN_TIME}
+          onChange={handleParametersChange}
+        />
+      </div>
+      <div>
+        <TextField
+          label="Limit_t2ra (msec)"
+          name="TR_CONDITION_MAX_TIME"
+          type="number"
+          size="small"
+          value={settings.TR_CONDITION_MAX_TIME}
           onChange={handleParametersChange}
         />
       </div>
@@ -119,7 +129,7 @@ export function SettingsView({
         />
       </div>
       <Divider/>
-      <Typography
+      {/* <Typography
         variant="h6"
       >
         Unit
@@ -161,7 +171,27 @@ export function SettingsView({
           value={settings.ftPerSteps}
           onChange={handleParametersChange}
         />
-      </FormGroup>
+      </FormGroup> */}
+      <div>
+        <TextField
+          label="ANRcoff"
+          name="anrCoff"
+          type="number"
+          size="small"
+          value={settings.anrCoff}
+          onChange={handleParametersChange}
+        />
+      </div>
+      <div>
+        <TextField
+          label="BNRcoff"
+          name="bnrCoff"
+          type="number"
+          size="small"
+          value={settings.bnrCoff}
+          onChange={handleParametersChange}
+        />
+      </div>
       <Divider/>
       <ButtonGroup>
         <Button

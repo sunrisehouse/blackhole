@@ -1,0 +1,7 @@
+export let TR_WAITING = 7000;
+export let TS_CONDITION_MIN_VALUE = 0.4;
+export let TS2_CONDITION_MIN_TIME = 200;
+export let TS2_CONDITION_MAX_TIME = 2000;
+export let TR_CONDITION_MAX_TIME = 70;
+export let TR_CONDITION_MIN_VALUE = 0.2;
+export let TR_CONDITION_MIN_VALUE_2 = 10.2;
