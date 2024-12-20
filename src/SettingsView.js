@@ -81,11 +81,21 @@ export function SettingsView({
       </div>
       <div>
         <TextField
-          label="La_threshold"
-          name="TR_CONDITION_MIN_VALUE_2"
+          label="La_threshold_up"
+          name="TL_CONDITION_UP_VALUE"
           type="number"
           size="small"
-          value={settings.TR_CONDITION_MIN_VALUE_2}
+          value={settings.TL_CONDITION_UP_VALUE}
+          onChange={handleParametersChange}
+        />
+      </div>
+      <div>
+        <TextField
+          label="La_threshold_down"
+          name="TL_CONDITION_DOWN_VALUE"
+          type="number"
+          size="small"
+          value={settings.TL_CONDITION_DOWN_VALUE}
           onChange={handleParametersChange}
         />
       </div>
@@ -126,6 +136,16 @@ export function SettingsView({
           type="number"
           size="small"
           value={settings.TR_CONDITION_MAX_TIME}
+          onChange={handleParametersChange}
+        />
+      </div>
+      <div>
+        <TextField
+          label="Limit_t2la (msec)"
+          name="TL_CONDITION_MAX_TIME"
+          type="number"
+          size="small"
+          value={settings.TL_CONDITION_MAX_TIME}
           onChange={handleParametersChange}
         />
       </div>

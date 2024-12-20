@@ -6,16 +6,18 @@ import { addConsoleLog } from "./consolelog";
 
 
 export class EventDetector {
-  constructor({TR_WAITING, TS_CONDITION_MIN_VALUE, TR_CONDITION_MIN_VALUE_2, TR_CONDITION_MIN_VALUE, TS2_CONDITION_MAX_TIME, TS2_CONDITION_MIN_TIME, TR_CONDITION_MAX_TIME}) {
+  constructor({TR_WAITING, TS_CONDITION_MIN_VALUE, TL_CONDITION_UP_VALUE, TL_CONDITION_DOWN_VALUE, TR_CONDITION_MIN_VALUE, TS2_CONDITION_MAX_TIME, TS2_CONDITION_MIN_TIME, TR_CONDITION_MAX_TIME, TL_CONDITION_MAX_TIME}) {
     this.isOn = false;
 
     this.TR_WAITING = TR_WAITING
     this.TS_CONDITION_MIN_VALUE = TS_CONDITION_MIN_VALUE
-    this.TR_CONDITION_MIN_VALUE_2 = TR_CONDITION_MIN_VALUE_2
+    this.TL_CONDITION_UP_VALUE = TL_CONDITION_UP_VALUE
+    this.TL_CONDITION_DOWN_VALUE = TL_CONDITION_DOWN_VALUE
     this.TR_CONDITION_MIN_VALUE = TR_CONDITION_MIN_VALUE
     this.TS2_CONDITION_MAX_TIME = TS2_CONDITION_MAX_TIME
     this.TS2_CONDITION_MIN_TIME = TS2_CONDITION_MIN_TIME
     this.TR_CONDITION_MAX_TIME = TR_CONDITION_MAX_TIME
+    this.TL_CONDITION_MAX_TIME = TL_CONDITION_MAX_TIME
 
     this.eventDataList = []; // 이벤트 데이터를 리스트로 저장
     this.flagChangeLog = []; // 플래그 변경 이력을 저장
@@ -170,9 +172,9 @@ export class EventDetector {
         if (this.flagTs2) {
           const timeSinceFlagTs2 = t - this.soundTs2Time; // flagTs2가 트리거된 시간과 비교
     
-          // flagTs2가 설정된 후 70ms 이내에 가속도 값이 0.2 이상이어야 함
-          if (timeSinceFlagTs2 <= this.TR_CONDITION_MAX_TIME) {
-            if (a >= this.TR_CONDITION_MIN_VALUE_2) {
+          // flagTs2가 설정된 후 70ms 이내에 가속도 값이 10.2 이상 또는 9.4이하여야 함
+          if (timeSinceFlagTs2 <= this.TL_CONDITION_MAX_TIME) {
+            if (a >= this.TL_CONDITION_UP_VALUE || a <= this.TL_CONDITION_DOWN_VALUE) {
               this.flagTr = true;
               this.trEvent.time = t;
               this.trEvent.value = a;
