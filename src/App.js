@@ -411,8 +411,8 @@ function App() {
               <TableRow>
                 <TableCell align="center">Time</TableCell>
                 <TableCell align="center">Time_Delta</TableCell>
-                <TableCell align="center">Laser_Val</TableCell>
                 <TableCell align="center">Result_Val</TableCell>
+                <TableCell align="center">Final_Val</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -423,8 +423,8 @@ function App() {
                 >
                   <TableCell align="center">{result.time}</TableCell>
                   <TableCell align="center">{result.timeDelta}</TableCell>
-                  <TableCell align="center">{result.laserVal}</TableCell>
                   <TableCell align="center">{getResultValueString(result.resultVal, settings)}</TableCell>
+                  <TableCell align="center">{result.finalVal}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
