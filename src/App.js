@@ -32,15 +32,6 @@ let startTime = 0;
 // const INITIALIZE_TIME = 5000;
 const EVENT_FECHING_TIME = 500;
 
-const TR_WAITING = 3000
-const TS_CONDITION_MIN_VALUE = 0.4
-const TL_CONDITION_UP_VALUE = 10.2
-const TL_CONDITION_DOWN_VALUE = 9.4
-const TR_CONDITION_MIN_VALUE = 0.2
-const TS2_CONDITION_MAX_TIME = 2000
-const TS2_CONDITION_MIN_TIME = 200
-const TR_CONDITION_MAX_TIME = 70
-const TL_CONDITION_MAX_TIME = 70
 
 function settingViewReducer(state, action) {
   if (action.type === 'open') return { ...state, isOpen: true };
@@ -95,17 +86,18 @@ function App() {
   //   mPerSteps: 0.8,
   //   ftPerSteps: 2.3,
   // });
-  const [settings, setSettings] = useState({
+
+  const initialSettings = JSON.parse(localStorage.getItem('settings')) || {
     INITIALIZE_TIME: 5000,
-    TR_WAITING,
-    TS_CONDITION_MIN_VALUE,
-    TL_CONDITION_UP_VALUE,
-    TL_CONDITION_DOWN_VALUE,
-    TR_CONDITION_MIN_VALUE,
-    TS2_CONDITION_MAX_TIME,
-    TS2_CONDITION_MIN_TIME,
-    TR_CONDITION_MAX_TIME,
-    TL_CONDITION_MAX_TIME,
+    TR_WAITING: 3000,
+    TS_CONDITION_MIN_VALUE: 0.4,
+    TL_CONDITION_UP_VALUE: 10.2,
+    TL_CONDITION_DOWN_VALUE: 9.4,
+    TR_CONDITION_MIN_VALUE: 0.2,
+    TS2_CONDITION_MAX_TIME: 2000,
+    TS2_CONDITION_MIN_TIME: 200,
+    TR_CONDITION_MAX_TIME: 70,
+    TL_CONDITION_MAX_TIME: 70,
     alCoff: 4.5741,
     blCoff: -1.336,
     clCoff: 0.0,
@@ -118,7 +110,9 @@ function App() {
     ftPerM: 3.28084,
     mPerSteps: 0.8,
     ftPerSteps: 2.3,
-  });
+  };
+
+  const [settings, setSettings] = useState(initialSettings);
 
   const detector = new EventDetector({
     TR_WAITING: settings.TR_WAITING, 
@@ -131,6 +125,11 @@ function App() {
     TR_CONDITION_MAX_TIME: settings.TR_CONDITION_MAX_TIME,
     TL_CONDITION_MAX_TIME: settings.TL_CONDITION_MAX_TIME,
   });
+
+  useEffect(() => {
+    // Save settings to localStorage whenever they change
+    localStorage.setItem('settings', JSON.stringify(settings));
+  }, [settings]);
 
   useEffect(() => {
     return () => {
