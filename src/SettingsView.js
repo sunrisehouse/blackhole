@@ -51,7 +51,7 @@ export function SettingsView({
       </Typography>
       <div>
         <TextField
-          label="START PAUSE TIME (sec)"
+          label="START PAUSE TIME (Msec)"
           name="INITIALIZE_TIME"
           type="number"
           size="small"
@@ -61,7 +61,7 @@ export function SettingsView({
       </div>
       <div>
         <TextField
-          label="RESUME PAUSE TIME (sec)"
+          label="RESUME PAUSE TIME (Msec)"
           name="TR_WAITING"
           type="number"
           size="small"
