@@ -35,6 +35,7 @@ export function DebuggingView({
               <TableHead>
                 <TableRow>
                   <TableCell align="right">time</TableCell>
+                  <TableCell align="right">detection</TableCell>
                   <TableCell align="right">flag</TableCell>
                   <TableCell align="right">message</TableCell>
                   <TableCell align="right">ts1 flag</TableCell>
@@ -56,6 +57,7 @@ export function DebuggingView({
                   >
                     {/* <TableCell component="th" scope="row">{index}</TableCell> */}
                     <TableCell align="right">{log.time - startTime}</TableCell>
+                    <TableCell align="right">{log.detection}</TableCell>
                     <TableCell align="right">{log.flag}</TableCell>
                     <TableCell align="right">{log.message}</TableCell>
                     <TableCell align="right">{log.value.ts1.flag ? 'true' : 'false'}</TableCell>

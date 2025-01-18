@@ -50,7 +50,7 @@ export class EventDetector {
   }
 
   // 플래그 변경 이력을 기록하는 메소드
-  logFlagChange(flagName, value, t, message) {
+  logFlagChange(flagName, value, t, message, detection) {
     this.flagChangeLog.push({
       flag: flagName,
       value: {
@@ -64,6 +64,7 @@ export class EventDetector {
       },
       time: t,
       message,
+      detection,
     });
     console.log(`Flag ${flagName} changed to ${value} at time ${t}`);
     addConsoleLog(`Flag ${flagName} changed to ${value} at time ${t}`)
@@ -78,7 +79,7 @@ export class EventDetector {
           this.flagTr = false;
           this.trEvent.time = null;
           this.trEvent.value = null;
-          this.logFlagChange('flagTr', false, t, 'flagTr false 로 바꿈');
+          this.logFlagChange('flagTr', false, t, 'flagTr false 로 바꿈', '');
         }
       }
       if (!this.flagTr) {
@@ -88,7 +89,7 @@ export class EventDetector {
             this.flagTs1 = true;
             this.soundTs1Sample = samples.find(sample => sample >= this.TS_CONDITION_MIN_VALUE);
             this.soundTs1Time = t;
-            this.logFlagChange('flagTs1', true, t, `${this.TS_CONDITION_MIN_VALUE} 이상의 sample 발견`);
+            this.logFlagChange('flagTs1', true, t, `${this.TS_CONDITION_MIN_VALUE} 이상의 sample 발견`, '1차 소리 감지');
           }
         } 
         // flagTs1이 설정된 후 100ms ~ 2000ms 사이에 flagTs2 조건 확인
@@ -105,7 +106,7 @@ export class EventDetector {
               this.flagTs2 = true;
               this.soundTs2Sample = samples.find(sample => sample >= this.TS_CONDITION_MIN_VALUE);
               this.soundTs2Time = t; // flagTs2가 트리거된 시간 기록
-              this.logFlagChange('flagTs2', true, t, `flagTs1=true 일 때 100 ~ 2000 사이에 ${this.TS_CONDITION_MIN_VALUE} 이상의 sample 발견`);
+              this.logFlagChange('flagTs2', true, t, `flagTs1=true 일 때 100 ~ 2000 사이에 ${this.TS_CONDITION_MIN_VALUE} 이상의 sample 발견`, '2차 소리 감지');
             }
           }
         }
@@ -122,7 +123,7 @@ export class EventDetector {
           this.flagTr = false;
           this.trEvent.time = null;
           this.trEvent.value = null;
-          this.logFlagChange('flagTr', false, t, 'flagTr false 로 바꿈');
+          this.logFlagChange('flagTr', false, t, 'flagTr false 로 바꿈', '');
         }
       }
       if (!this.flagTr) {
@@ -145,12 +146,12 @@ export class EventDetector {
               };
               // 이벤트 데이터를 리스트에 저장
               this.eventDataList.push(eventData);
-              this.logFlagChange('flagTr', a, t, `Event detected at time ${t}, gyro: ${a}`);
+              this.logFlagChange('flagTr', a, t, `Event detected at time ${t}, gyro: ${a}`, '각속도 감지');
             }
           } else {
             // 70ms가 경과하면 flagTs2를 false로 설정
             this.flagTs2 = false;
-            this.logFlagChange('flagTs2', false, t, `Resetting flagTs2 after 70ms timeout with no sufficient acceleration.`);
+            this.logFlagChange('flagTs2', false, t, `Resetting flagTs2 after 70ms timeout with no sufficient acceleration.`, '');
           }
         }
       }
@@ -165,7 +166,7 @@ export class EventDetector {
           this.flagTr = false;
           this.trEvent.time = null;
           this.trEvent.value = null;
-          this.logFlagChange('flagTr', false, t, 'flagTr false 로 바꿈');
+          this.logFlagChange('flagTr', false, t, 'flagTr false 로 바꿈', '');
         }
       }
       if (!this.flagTr) {
@@ -188,12 +189,12 @@ export class EventDetector {
               };
               // 이벤트 데이터를 리스트에 저장
               this.eventDataList.push(eventData);
-              this.logFlagChange('flagTr', a, t, `Event detected at time ${t}, accel: ${a}`);
+              this.logFlagChange('flagTr', a, t, `Event detected at time ${t}, accel: ${a}`, '가속도 감지');
             }
           } else {
             // 70ms가 경과하면 flagTs2를 false로 설정
             this.flagTs2 = false;
-            this.logFlagChange('flagTs2', false, t, `Resetting flagTs2 after 70ms timeout with no sufficient acceleration.`);
+            this.logFlagChange('flagTs2', false, t, `Resetting flagTs2 after 70ms timeout with no sufficient acceleration.`, '');
           }
         }
       }
@@ -209,8 +210,8 @@ export class EventDetector {
     this.soundTs1Time = null;
     this.soundTs2Sample = null;
     this.soundTs2Time = null;
-    this.logFlagChange('flagTs1', false, t, message);
-    this.logFlagChange('flagTs2', false, t, message);
+    this.logFlagChange('flagTs1', false, t, message, '');
+    this.logFlagChange('flagTs2', false, t, message, '');
   }
 
   // 이벤트 데이터를 반환하는 메소드
