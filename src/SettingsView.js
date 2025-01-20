@@ -61,7 +61,7 @@ export function SettingsView({
       </div>
       <div>
         <TextField
-          label="RESUME PAUSE TIME (Msec)"
+          label="RESUME PAUSE TIME (msec)"
           name="TR_WAITING"
           type="number"
           size="small"
@@ -121,7 +121,7 @@ export function SettingsView({
       </div>
       <div>
         <TextField
-          label="Time-available_min (msec)"
+          label="Time_available_min (msec)"
           name="TS2_CONDITION_MIN_TIME"
           type="number"
           size="small"
