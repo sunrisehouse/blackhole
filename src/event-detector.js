@@ -6,11 +6,12 @@ import { addConsoleLog } from "./consolelog";
 
 
 export class EventDetector {
-  constructor({TR_WAITING, TS_CONDITION_MIN_VALUE, TL_CONDITION_UP_VALUE, TL_CONDITION_DOWN_VALUE, TR_CONDITION_MIN_VALUE, TS2_CONDITION_MAX_TIME, TS2_CONDITION_MIN_TIME, TR_CONDITION_MAX_TIME, TL_CONDITION_MAX_TIME}) {
+  constructor({TR_WAITING, TS1_CONDITION_MIN_VALUE, TS2_CONDITION_MIN_VALUE, TL_CONDITION_UP_VALUE, TL_CONDITION_DOWN_VALUE, TR_CONDITION_MIN_VALUE, TS2_CONDITION_MAX_TIME, TS2_CONDITION_MIN_TIME, TR_CONDITION_MAX_TIME, TL_CONDITION_MAX_TIME}) {
     this.isOn = false;
 
     this.TR_WAITING = TR_WAITING
-    this.TS_CONDITION_MIN_VALUE = TS_CONDITION_MIN_VALUE
+    this.TS1_CONDITION_MIN_VALUE = TS1_CONDITION_MIN_VALUE
+    this.TS2_CONDITION_MIN_VALUE = TS2_CONDITION_MIN_VALUE
     this.TL_CONDITION_UP_VALUE = TL_CONDITION_UP_VALUE
     this.TL_CONDITION_DOWN_VALUE = TL_CONDITION_DOWN_VALUE
     this.TR_CONDITION_MIN_VALUE = TR_CONDITION_MIN_VALUE
@@ -85,11 +86,11 @@ export class EventDetector {
       if (!this.flagTr) {
         if (!this.flagTs1) {
           // 0.4 이상의 값이 있는지 확인하여 flagTs1 설정
-          if (samples.some(sample => sample >= this.TS_CONDITION_MIN_VALUE)) {
+          if (samples.some(sample => sample >= this.TS1_CONDITION_MIN_VALUE)) {
             this.flagTs1 = true;
-            this.soundTs1Sample = samples.find(sample => sample >= this.TS_CONDITION_MIN_VALUE);
+            this.soundTs1Sample = samples.find(sample => sample >= this.TS1_CONDITION_MIN_VALUE);
             this.soundTs1Time = t;
-            this.logFlagChange('flagTs1', true, t, `${this.TS_CONDITION_MIN_VALUE} 이상의 sample 발견`, '1차 소리 감지');
+            this.logFlagChange('flagTs1', true, t, `${this.TS1_CONDITION_MIN_VALUE} 이상의 sample 발견`, '1차 소리 감지');
           }
         } 
         // flagTs1이 설정된 후 100ms ~ 2000ms 사이에 flagTs2 조건 확인
@@ -102,11 +103,11 @@ export class EventDetector {
           } 
           // 100ms ~ 2000ms 사이에 flagTs2 조건 확인
           else if (timeDiff >= this.TS2_CONDITION_MIN_TIME && timeDiff <= this.TS2_CONDITION_MAX_TIME) {
-            if (samples.some(sample => sample >= this.TS_CONDITION_MIN_VALUE)) {
+            if (samples.some(sample => sample >= this.TS2_CONDITION_MIN_VALUE)) {
               this.flagTs2 = true;
-              this.soundTs2Sample = samples.find(sample => sample >= this.TS_CONDITION_MIN_VALUE);
+              this.soundTs2Sample = samples.find(sample => sample >= this.TS2_CONDITION_MIN_VALUE);
               this.soundTs2Time = t; // flagTs2가 트리거된 시간 기록
-              this.logFlagChange('flagTs2', true, t, `flagTs1=true 일 때 100 ~ 2000 사이에 ${this.TS_CONDITION_MIN_VALUE} 이상의 sample 발견`, '2차 소리 감지');
+              this.logFlagChange('flagTs2', true, t, `flagTs1=true 일 때 100 ~ 2000 사이에 ${this.TS2_CONDITION_MIN_VALUE} 이상의 sample 발견`, '2차 소리 감지');
             }
           }
         }

@@ -71,11 +71,21 @@ export function SettingsView({
       </div>
       <div>
         <TextField
-          label="Sound_threshold"
-          name="TS_CONDITION_MIN_VALUE"
+          label="Sound_threshold(ts1)"
+          name="TS1_CONDITION_MIN_VALUE"
           type="number"
           size="small"
-          value={settings.TS_CONDITION_MIN_VALUE}
+          value={settings.TS1_CONDITION_MIN_VALUE}
+          onChange={handleParametersChange}
+        />
+      </div>
+      <div>
+        <TextField
+          label="Sound_threshold(ts2)"
+          name="TS2_CONDITION_MIN_VALUE"
+          type="number"
+          size="small"
+          value={settings.TS2_CONDITION_MIN_VALUE}
           onChange={handleParametersChange}
         />
       </div>
